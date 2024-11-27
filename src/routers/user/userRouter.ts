@@ -7,7 +7,6 @@ import { employerProfile, getUserProfile, profileUpdate, removeProfileUrl, resum
 
 import { upload } from "../../middlewares/uploadMiddleware";
 import { authenticateToken } from "../../middlewares/authMiddleware";
-
 const userRouter = express.Router();
 // Route for user registration with validation middleware
 userRouter.post("/register", ...registerValidation, validateRequest, registerUser);

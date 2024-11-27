@@ -1,0 +1,7 @@
+PORT=4000
+MONGO_CONNECTION_STRING=mongodb://localhost:27017/olive
+NODE_ENV=developement 
+JWT_SECRET=ThisIsMySeckretYouFool007
+EMAIL_USER='samsk7774@gmail.com'
+EMAIL_PASS='qgdm nfrw lulw yeps'
+FRONTENd_URL='http://localhost:3000'
