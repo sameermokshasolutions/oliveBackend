@@ -29,6 +29,7 @@ const educationSchema = new mongoose.Schema({
   endDate: { type: Date },
 });
 
+// huiiiyyaa
 const candidateSchema = new mongoose.Schema(
   {
     userId: {},
