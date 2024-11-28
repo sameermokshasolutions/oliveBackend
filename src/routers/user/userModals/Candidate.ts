@@ -22,11 +22,14 @@ const experienceSchema = new mongoose.Schema({
 });
 
 const educationSchema = new mongoose.Schema({
-  institution: { type: String, required: true },
+  institute: { type: String, required: true },
   degree: { type: String, required: true },
   field: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date },
+  startYear: { type: Number, required: true },
+  passingYear: { type: Number },
+  status: { type: String, enum: ["pass", "failed"] },
+  cgpa: { type: String },
+  percentage: { type: String },
 });
 
 const candidateSchema = new mongoose.Schema(
