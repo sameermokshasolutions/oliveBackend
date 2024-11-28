@@ -32,7 +32,6 @@ const educationSchema = new mongoose.Schema({
   percentage: { type: String },
 });
 
-// huiiiyyaa
 const candidateSchema = new mongoose.Schema(
   {
     userId: {},
