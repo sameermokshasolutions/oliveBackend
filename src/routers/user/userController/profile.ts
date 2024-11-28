@@ -170,7 +170,7 @@ interface CandidateInfoBody {
 
 // Route handler to get the consolidated data 
 export const updateUserFile = async (req: any, res: any, next: any) => {
-  // console.log(req.body);
+  console.log(req.body);
 
   try {
     // console.log('------------------------------------------>>', );
@@ -211,6 +211,7 @@ export const updateUserFile = async (req: any, res: any, next: any) => {
           resumeUrl: fileurl,
 
         });
+
       } else {
         newCandidate = new CandidateInfo({
           userId,
@@ -286,53 +287,61 @@ export const getUserProfile = async (req: any, res: any, next: any) => {
 // Route handler to update or create candidate detailed information
 export const updateUserProfile: RequestHandler = async (req: any, res, next) => {
   try {
-    console.log(req.body);
-
-    // Extract user ID from JWT
-    const userId = req.user.id;
+    const userId = req.user?.id;
     if (!userId) {
       throw createHttpError(401, "Unauthorized: User ID not found");
     }
 
-    // Parse the request body
-    const requestBody = req.body as CandidateInfoBody;
+    const requestBody = req.body;
 
-    // Check if candidate information exists
-    const candidate = await CandidateInfo.findOne({ userId });
+    // Fields belonging to the User model
+    const userFields = ["firstName", "lastName"]; // Update with actual User fields
 
-    if (candidate) {
-      // Log changes and update candidate profile
-      const changes = await checkUpdate(candidate.toObject(), requestBody);
+    // Separate fields for User and CandidateInfo models
+    const userUpdates = Object.fromEntries(
+      Object.entries(requestBody).filter(([key]) => userFields.includes(key))
+    );
+    const candidateUpdates = Object.fromEntries(
+      Object.entries(requestBody).filter(([key]) => !userFields.includes(key))
+    );
+
+    // Update User model
+    const userPromise = usermodal.findByIdAndUpdate(userId, userUpdates, {
+      new: true,
+      runValidators: true,
+    });
+
+    // Update or create CandidateInfo model
+    const candidatePromise = CandidateInfo.findOneAndUpdate(
+      { userId },
+      candidateUpdates,
+      { new: true, upsert: true, runValidators: true }
+    );
+
+    // Wait for both operations to complete
+    const [updatedUser, updatedCandidate] = await Promise.all([
+      userPromise,
+      candidatePromise,
+    ]);
+
+    // Log activity (example: only for updates)
+    if (updatedCandidate) {
       await logProfileActivity(
         userId,
-        candidate,
-        "updated",
-        requestBody,
+        updatedCandidate,
+        updatedCandidate.isNew ? "created" : "updated",
+        candidateUpdates,
         "candidateInfo"
       );
-      Object.assign(candidate, requestBody);
-      await candidate.save();
-      res.status(200).json({
-        message: "Profile updated successfully",
-        data: candidate,
-        changes,
-      });
-    } else {
-      // Create new candidate profile if it does not exist
-      const newCandidate = new CandidateInfo({ userId, ...requestBody });
-      await newCandidate.save();
-      await logProfileActivity(
-        userId,
-        {},
-        "created",
-        requestBody,
-        "candidateInfo"
-      );
-      res.status(201).json({
-        message: "Profile created successfully",
-        data: newCandidate,
-      });
     }
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      data: {
+        user: updatedUser,
+        candidateInfo: updatedCandidate,
+      },
+    });
   } catch (error) {
     next(error instanceof Error ? createHttpError(500, error.message) : error);
   }
