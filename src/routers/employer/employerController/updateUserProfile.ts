@@ -24,7 +24,6 @@ export const updateProfileController: RequestHandler = async (req: any, res, nex
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             throw createHttpError(401, errors);
-            return;
         }
 
         const userId = req.user?.id; // Assuming the authenticateToken middleware adds user to req
