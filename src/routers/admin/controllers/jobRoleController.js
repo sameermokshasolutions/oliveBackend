@@ -3,7 +3,7 @@ const createHttpError = require('http-errors');
 
 exports.getAllJobRoles = async (req, res, next) => {
   try {
-    const roles = await JobRole.find().populate('categoryId');
+    const roles = await JobRole.find();
     res.status(200).json({ success: true, data: roles });
   } catch (error) {
     next(error);

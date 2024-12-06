@@ -10,7 +10,7 @@ exports.validateJobTag = [
 
 exports.validateJobRole = [
   body('name').trim().notEmpty().withMessage('Job role name is required'),
-  body('categoryId').trim().notEmpty().withMessage('Category ID is required'),
+ 
 ];
 
 exports.validateEducation = [
