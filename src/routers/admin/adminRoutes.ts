@@ -1,42 +1,44 @@
 const express = require('express');
-const router = express.Router();
-const jobController = require('../controllers/jobController');
-const { validateJobCategory, validateJobTag, validateJobRole, validateEducation, validateExperience } = require('../validators/jobValidators');
-const { authenticateToken } = require('../middleware/auth');
+const adminRouter = express.Router();
+const jobCategoryController = require('./controllers/jobCategoryController');
+const jobTagController = require('./controllers/jobTagController');
+const jobRoleController = require('./controllers/jobRoleController');
+const educationController = require('./controllers/educationController');
+const experienceController = require('./controllers/experienceController');
+const { validateCreateJobCategory, validateUpdateJobCategory } = require('./validators/jobCategoryValidator');
+const { validateCreateJobTag, validateUpdateJobTag } = require('./validators/jobTagValidator');
+const { validateCreateJobRole, validateUpdateJobRole } = require('./validators/jobRoleValidator');
+const { validateCreateEducation, validateUpdateEducation } = require('./validators/educationValidator');
+const { validateCreateExperience, validateUpdateExperience } = require('./validators/experienceValidator');
 
-// Job Categories
-router.get('/job-categories', jobController.getJobCategories);
-router.post('/job-categories', authenticateToken, validateJobCategory, jobController.createJobCategory);
-router.put('/job-categories/:id', authenticateToken, validateJobCategory, jobController.updateJobCategory);
-router.delete('/job-categories/:id', authenticateToken, jobController.deleteJobCategory);
+// Job Category routes
+adminRouter.get('/job-categories', jobCategoryController.getAllJobCategories);
+adminRouter.post('/job-categories', validateCreateJobCategory, jobCategoryController.createJobCategory);
+adminRouter.put('/job-categories/:id', validateUpdateJobCategory, jobCategoryController.updateJobCategory);
+adminRouter.delete('/job-categories/:id', jobCategoryController.deleteJobCategory);
 
-// Job Tags
-router.get('/job-tags', jobController.getJobTags);
-router.post('/job-tags', authenticateToken, validateJobTag, jobController.createJobTag);
-router.put('/job-tags/:id', authenticateToken, validateJobTag, jobController.updateJobTag);
-router.delete('/job-tags/:id', authenticateToken, jobController.deleteJobTag);
+// Job Tag routes
+adminRouter.get('/job-tags', jobTagController.getAllJobTags);
+adminRouter.post('/job-tags', validateCreateJobTag, jobTagController.createJobTag);
+adminRouter.put('/job-tags/:id', validateUpdateJobTag, jobTagController.updateJobTag);
+adminRouter.delete('/job-tags/:id', jobTagController.deleteJobTag);
 
-// Job Roles
-router.get('/job-roles', jobController.getJobRoles);
-router.post('/job-roles', authenticateToken, validateJobRole, jobController.createJobRole);
-router.put('/job-roles/:id', authenticateToken, validateJobRole, jobController.updateJobRole);
-router.delete('/job-roles/:id', authenticateToken, jobController.deleteJobRole);
+// Job Role routes
+adminRouter.get('/job-roles', jobRoleController.getAllJobRoles);
+adminRouter.post('/job-roles', validateCreateJobRole, jobRoleController.createJobRole);
+adminRouter.put('/job-roles/:id', validateUpdateJobRole, jobRoleController.updateJobRole);
+adminRouter.delete('/job-roles/:id', jobRoleController.deleteJobRole);
 
-// Education
-router.get('/education', jobController.getEducation);
-router.post('/education', authenticateToken, validateEducation, jobController.createEducation);
-router.put('/education/:id', authenticateToken, validateEducation, jobController.updateEducation);
-router.delete('/education/:id', authenticateToken, jobController.deleteEducation);
+// Education routes
+adminRouter.get('/education', educationController.getAllEducation);
+adminRouter.post('/education', validateCreateEducation, educationController.createEducation);
+adminRouter.put('/education/:id', validateUpdateEducation, educationController.updateEducation);
+adminRouter.delete('/education/:id', educationController.deleteEducation);
 
-// Experience
-router.get('/experience', jobController.getExperience);
-router.post('/experience', authenticateToken, validateExperience, jobController.createExperience);
-router.put('/experience/:id', authenticateToken, validateExperience, jobController.updateExperience);
-router.delete('/experience/:id', authenticateToken, jobController.deleteExperience);
-// Salary Types
-router.get('/salary-types', jobController.getSalaryTypes);
-// Job Types
-router.get('/job-types', jobController.getJobTypes);
+// Experience routes
+adminRouter.get('/experience', experienceController.getAllExperience);
+adminRouter.post('/experience', validateCreateExperience, experienceController.createExperience);
+adminRouter.put('/experience/:id', validateUpdateExperience, experienceController.updateExperience);
+adminRouter.delete('/experience/:id', experienceController.deleteExperience);
 
-module.exports = router;
-
+export default adminRouter;

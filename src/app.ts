@@ -5,6 +5,7 @@ import userRouter from "./routers/user/userRouter";
 import emailRouter from "./routers/email/emailVerification";
 import cookieParser from 'cookie-parser';
 import employerRouter from "./routers/employer/employerRoutes";
+import adminRouter from "./routers/admin/adminRoutes";
 
 const app: Application = express();
 
@@ -30,6 +31,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/users', userRouter);
+app.use('/api/admin', adminRouter);
 app.use('/api/', emailRouter);
 app.use('/api/employer/', employerRouter);
 
