@@ -54,6 +54,12 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             sameSite: 'strict', // Mitigate CSRF attacks
             maxAge: 10 * 60 * 60 * 1000, // 10 hours in milliseconds
         });
+        res.cookie('userRole', existingUser.role, {
+            httpOnly: true, // Prevent JavaScript access to the cookie
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'strict', // Mitigate CSRF attacks
+            maxAge: 10 * 60 * 60 * 1000, // 10 hours in milliseconds
+        });
 
         // Send a success response with user details
         res.status(200).json({
@@ -64,5 +70,40 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         });
     } catch (error) {
         next(error);
+    }
+};
+
+
+export const logoutUser = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+        console.log('Clearing cookies...');
+
+        // Clear cookies
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        res.clearCookie('userRole', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        console.log('Cookies cleared. Sending response.');
+
+        // Send the response
+        res.status(200).json({
+            success: true,
+            message: 'Logout successful',
+        });
+    } catch (error) {
+        console.error('Error during logout:', error);
+
+        // Pass error to next middleware if response hasn't been sent
+        if (!res.headersSent) {
+            return next(error);
+        }
     }
 };
