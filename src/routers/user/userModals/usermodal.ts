@@ -22,6 +22,8 @@ export interface IUser extends Document {
   jobApplied?: ObjectId[]; // Array of job IDs (ObjectIds)
   subscriptionType?: string;
   verificationToken?: string;
+  otp?: string;
+  otpExpires?: Date;
 }
 
 const UserSchema: Schema = new Schema(
@@ -56,7 +58,9 @@ const UserSchema: Schema = new Schema(
       type: String,
       enum: ["Email", "SMS", "Push Notifications"],
     },
-    verificationToken: { type: String, default: "" },
+    verificationToken: { type: String, },
+    otp: { type: String, default: "" },
+    otpExpires: { type: Date, default: "" },
     profileStatus: { type: Boolean, default: false },
     jobApplied: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }], // Array of ObjectIds referencing Job
   },

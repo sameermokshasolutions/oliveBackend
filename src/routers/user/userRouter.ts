@@ -7,7 +7,7 @@ import {
 } from "./validator/userValidators"; // Import validation middlewares for different routes
 import { validateRequest } from "../../middlewares/validateRequest"; // Middleware to validate incoming requests
 import { registerUser } from "./userController/registerController"; // Controller for user registration
-import { loginUser, logoutUser } from "./userController/authController"; // Controller for user login
+import { forgetPassword, loginUser, logoutUser, resetPassword, verifyOtp } from "./userController/authController"; // Controller for user login
 import {
   employerProfile,
   getUserProfile,
@@ -28,6 +28,9 @@ userRouter.post("/register", ...registerValidation, validateRequest, registerUse
 
 // Route for user login with validation middleware
 // Validates login credentials before passing them to the login controller
+userRouter.post("/verify-otp", validateRequest, verifyOtp);
+userRouter.post("/reset-password", validateRequest, resetPassword);
+userRouter.post("/forgot-password", validateRequest, forgetPassword);
 userRouter.post("/login", ...loginValidation, validateRequest, loginUser);
 userRouter.post("/logout", validateRequest, logoutUser);
 
