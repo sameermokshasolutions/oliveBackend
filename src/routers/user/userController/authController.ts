@@ -131,10 +131,13 @@ export const forgetPassword = async (req: Request, res: Response, next: NextFunc
         await User.findOneAndUpdate(
             { email },
             { $set: { otp, otpExpires: Date.now() + 10 * 60 * 1000 } }, // OTP expires in 10 minutes
-            { new: true }
+
         );
+    
 
         // Send verification email
+        console.log(email);
+
         try {
             await emailService.sendEmail(
                 email,
@@ -191,13 +194,13 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
         }
 
         // Clear the OTP and expiration time
-        user.otp = undefined;
-        user.otpExpires = undefined;
+        // user.otp = undefined;
+        // user.otpExpires = undefined;
 
-        // Set a flag to indicate that the user can reset their password
-        // user.canResetPassword = true;
+        // // Set a flag to indicate that the user can reset their password
+        // // user.canResetPassword = true;
 
-        await user.save();
+        // await user.save();
 
         // Send success response
         res.status(200).json({
@@ -254,7 +257,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
         });
     } catch (error) {
         console.log(error);
-        
+
         next(error);
     }
 };

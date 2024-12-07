@@ -2,6 +2,7 @@ const express = require('express');
 const adminRouter = express.Router();
 const jobCategoryController = require('./controllers/jobCategoryController');
 const jobTagController = require('./controllers/jobTagController');
+const jobSkillController = require('./controllers/jobSkillController');
 const jobRoleController = require('./controllers/jobRoleController');
 const educationController = require('./controllers/educationController');
 const experienceController = require('./controllers/experienceController');
@@ -22,6 +23,12 @@ adminRouter.get('/job-tags', jobTagController.getAllJobTags);
 adminRouter.post('/job-tags', validateCreateJobTag, jobTagController.createJobTag);
 adminRouter.put('/job-tags/:id', validateUpdateJobTag, jobTagController.updateJobTag);
 adminRouter.delete('/job-tags/:id', jobTagController.deleteJobTag);
+
+// Job skills routes
+adminRouter.get('/job-skills', jobSkillController.getAllJobSkills);
+adminRouter.post('/job-skills', validateCreateJobTag, jobSkillController.createJobSkills);
+adminRouter.put('/job-skills/:id', validateUpdateJobTag, jobSkillController.updateJobSkills);
+adminRouter.delete('/job-skills/:id', jobSkillController.deleteJobSkills);
 
 // Job Role routes
 adminRouter.get('/job-roles', jobRoleController.getAllJobRoles);
