@@ -30,7 +30,7 @@ import {
   getJobs,
   getPublicJobById,
   getPublicJobs,
-} from "./userController/jobs";
+} from "../job/controllers/jobs";
 
 const userRouter = express.Router(); // Initialize the Express router for user-related routes
 
@@ -81,10 +81,7 @@ userRouter.post("/removeProfilePicture", authenticateToken, removeProfileUrl);
 // Requires authentication to access the user's profile
 userRouter.get("/userProfile", authenticateToken, getUserProfile);
 
-userRouter.get("/jobs", authenticateToken, getJobs);
-userRouter.get("/jobs/:id", authenticateToken, getJobById);
-userRouter.get("/public/jobs", getPublicJobs);
-userRouter.get("/public/jobs/:id", getPublicJobById);
+
 
 // Route to update the user's profile information
 // Validates candidate-specific fields and requires the user to be authenticated
