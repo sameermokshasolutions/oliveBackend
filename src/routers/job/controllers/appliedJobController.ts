@@ -1,5 +1,5 @@
-import AppliedJobs, { iAppliedJob } from "../models/AppliedJobs.model";
-import { NextFunction, Request, Response } from "express";
+import AppliedJobs from "../models/AppliedJobs.model";
+import { NextFunction, Response } from "express";
 import createHttpError from "http-errors";
 
 export const applyForJob = async (
@@ -10,7 +10,6 @@ export const applyForJob = async (
   try {
     const userId = req.user?.id;
     const { jobId } = req.body;
-    console.log("-------------------------------------", userId);
 
     if (!userId || !jobId) {
       return next(
@@ -37,13 +36,13 @@ export const applyForJob = async (
 
       res.status(201).json({
         message: "Job application saved successfully",
-        appliedJob: jobApplied,
+        data: jobApplied,
       });
     }
 
     res.status(201).json({
       message: "Job application saved successfully",
-      appliedJob: existingAppliedJobs,
+      data: existingAppliedJobs,
     });
   } catch (error) {
     next(createHttpError(500, "An error occurred while applying for the job"));
