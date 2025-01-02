@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import mongoose, { Document, Schema } from "mongoose";
 
 // EmployerAction schema interface
@@ -31,24 +32,30 @@ const employerActionSchema = new Schema<EmployerAction>({
 });
 
 // AppliedJob schema definition
-const appliedJobSchema = new Schema<iAppliedJob>({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    unique: true,
-  },
-  jobId: [
-    {
+const appliedJobSchema = new Schema<iAppliedJob>(
+  {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Job",
+      ref: "User",
       required: true,
+      unique: true,
     },
-  ],
-  employerActions: [employerActionSchema],
-});
+    jobId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+        required: true,
+      },
+    ],
+    employerActions: [employerActionSchema],
+  },
+  { timestamps: true }
+);
 
 // Model definition
-const AppliedJobs = mongoose.model<iAppliedJob>("AppliedJobs", appliedJobSchema);
+const AppliedJobs = mongoose.model<iAppliedJob>(
+  "AppliedJobs",
+  appliedJobSchema
+);
 
 export default AppliedJobs;

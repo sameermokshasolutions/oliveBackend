@@ -7,7 +7,11 @@ export const getJobs = async (req: any, res: any) => {
       path: "company",
       select: "companyName aboutUs",
     });
-    res.status(200).json(jobs);
+    res.status(200).json({
+      success: true,
+      message: "Jobs Fetched successfully",
+      data: jobs,
+    });
   } catch (error) {
     console.error("Error fetching jobs:", error);
     res.status(500).json({ error: "Failed to fetch jobs" });
@@ -20,7 +24,11 @@ export const getPublicJobs = async (req: any, res: any) => {
       path: "company",
       select: "companyName aboutUs",
     });
-    res.status(200).json(jobs);
+    res.status(200).json({
+      success: true,
+      message: "Jobs Fetched successfully",
+      data: jobs,
+    });
   } catch (error) {
     console.error("Error fetching jobs:", error);
     res.status(500).json({ error: "Failed to fetch jobs" });
@@ -45,6 +53,7 @@ export const getJobById = async (req: any, res: any) => {
     const hasApplied = !!appliedJob;
 
     res.status(200).json({
+      success: true,
       message: "Job Fetched Successfully",
       data: {
         ...jobs?.toObject(),
@@ -64,7 +73,11 @@ export const getPublicJobById = async (req: any, res: any) => {
       path: "company",
       select: "companyName aboutUs",
     });
-    res.status(200).json(jobs);
+    res.status(200).json({
+      success: true,
+      message: "Job Fetched successfully",
+      data: jobs,
+    });
   } catch (error) {
     console.error("Error fetching jobs:", error);
     res.status(500).json({ error: "Failed to fetch jobs" });

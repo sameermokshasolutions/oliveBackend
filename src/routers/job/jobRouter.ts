@@ -9,7 +9,10 @@ import {
   getPublicJobById,
   getPublicJobs,
 } from "./controllers/jobs";
-import { applyForJob } from "./controllers/appliedJobController";
+import {
+  applyForJob,
+  getAppliedJobs,
+} from "./controllers/appliedJobController";
 
 const jobRouter = express.Router();
 jobRouter.post("/jobs", createJobValidator, validateRequest, createJob);
@@ -21,4 +24,5 @@ jobRouter.get("/public/jobs", getPublicJobs);
 jobRouter.get("/public/jobs/:id", getPublicJobById);
 
 jobRouter.post("/apply-job", authenticateToken, applyForJob);
+jobRouter.get("/getAppliedJobs", authenticateToken, getAppliedJobs);
 export default jobRouter;
