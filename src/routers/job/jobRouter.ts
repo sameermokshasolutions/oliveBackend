@@ -13,6 +13,7 @@ import {
   applyForJob,
   getAppliedJobs,
 } from "./controllers/appliedJobController";
+import { getSavedJobs, saveJobs } from "./controllers/savedJobController";
 
 const jobRouter = express.Router();
 jobRouter.post("/jobs", createJobValidator, validateRequest, createJob);
@@ -25,4 +26,7 @@ jobRouter.get("/public/jobs/:id", getPublicJobById);
 
 jobRouter.post("/apply-job", authenticateToken, applyForJob);
 jobRouter.get("/getAppliedJobs", authenticateToken, getAppliedJobs);
+jobRouter.put("/saveJobs/:id", authenticateToken, saveJobs);
+jobRouter.get("/saveJobs", authenticateToken, getSavedJobs);
+
 export default jobRouter;

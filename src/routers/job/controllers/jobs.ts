@@ -1,16 +1,42 @@
 import AppliedJobs from "../models/AppliedJobs.model";
 import Job from "../models/Job";
+import SavedJob from "../models/savedJobsModel";
 
 export const getJobs = async (req: any, res: any) => {
+  const userId = req.user.id;
+
   try {
     const jobs = await Job.find().populate({
       path: "company",
       select: "companyName aboutUs",
     });
+
+    const savedJob = await SavedJob.findOne({ userId }).select("savedJobs");
+
+    if (!savedJob) {
+      return res.status(200).json({
+        success: true,
+        message: "Jobs Fetched successfully",
+        data: jobs,
+      });
+    }
+
+    const savedJobIds = savedJob.savedJobs.map((saved: any) =>
+      saved.toString()
+    );
+
+    const jobsWithStatus = jobs.map((job) => {
+      const hasSavedJob = savedJobIds.includes(job._id!.toString());
+      return {
+        ...job.toObject(),
+        hasSavedJob,
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "Jobs Fetched successfully",
-      data: jobs,
+      data: jobsWithStatus,
     });
   } catch (error) {
     console.error("Error fetching jobs:", error);
@@ -50,6 +76,12 @@ export const getJobById = async (req: any, res: any) => {
       jobId: jobId,
     });
 
+    const savedJob = await SavedJob.findOne({
+      userId,
+      savedJobs: { $in: [jobId] },
+    });
+
+    const hasSavedJob = !!savedJob;
     const hasApplied = !!appliedJob;
 
     res.status(200).json({
@@ -58,6 +90,7 @@ export const getJobById = async (req: any, res: any) => {
       data: {
         ...jobs?.toObject(),
         hasApplied,
+        hasSavedJob,
       },
     });
   } catch (error) {
