@@ -1,4 +1,5 @@
-import AppliedJobs from "../models/AppliedJobs.model";
+// import AppliedJobs from "../models/AppliedJobs.model";
+import AppliedJobsByCandidateModel from "../models/AppliedJobsByCandidateModel";
 import Job from "../models/Job";
 import SavedJob from "../models/savedJobsModel";
 
@@ -71,9 +72,11 @@ export const getJobById = async (req: any, res: any) => {
       select: "companyName aboutUs",
     });
 
-    const appliedJob = await AppliedJobs.findOne({
+    const appliedJob = await AppliedJobsByCandidateModel.findOne({
       userId,
-      jobId: jobId,
+      appliedJobs: {
+        $elemMatch: { jobId },
+      },
     });
 
     const savedJob = await SavedJob.findOne({

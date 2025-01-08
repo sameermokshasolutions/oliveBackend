@@ -17,15 +17,18 @@ import { getSavedJobs, saveJobs } from "./controllers/savedJobController";
 
 const jobRouter = express.Router();
 jobRouter.post("/jobs", createJobValidator, validateRequest, createJob);
-// jobRouter.post("/jobsdata", createJobValidator, validateRequest, jobsdata);
 
+// get jobs
 jobRouter.get("/jobs", authenticateToken, getJobs);
 jobRouter.get("/jobs/:id", authenticateToken, getJobById);
 jobRouter.get("/public/jobs", getPublicJobs);
 jobRouter.get("/public/jobs/:id", getPublicJobById);
 
+// apply jobs
 jobRouter.post("/apply-job", authenticateToken, applyForJob);
 jobRouter.get("/getAppliedJobs", authenticateToken, getAppliedJobs);
+
+// save jobs
 jobRouter.put("/saveJobs/:id", authenticateToken, saveJobs);
 jobRouter.get("/saveJobs", authenticateToken, getSavedJobs);
 

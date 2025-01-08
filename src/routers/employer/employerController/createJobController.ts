@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { validateJobInput } from "../../../utils/validateJobInputs";
 import createHttpError from "http-errors";
 import AppliedJobs from "../../job/models/AppliedJobs.model";
+import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
 export const createJobController: RequestHandler = async (
   req: any,
@@ -61,7 +62,7 @@ export const getMyJobsController: any = async (
     // Find the employer's profile based on the userId
     const employerProfile = await EmployerProfile.findOne({ userId });
     if (!employerProfile) {
-      return next(createHttpError(404, "Employer profile not found"));
+      return next(createHttpError(401, "Employer profile not found"));
     }
 
     // Fetch all jobs associated with the employer
@@ -100,6 +101,73 @@ export const getMyJobsController: any = async (
           _id: "$jobId",
           appliedUsers: { $push: "$userId" },
           jobDetails: { $first: "$jobDetails" },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Jobs fetched successfully",
+      data: appliedUsersByJobId,
+    });
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    return next(createHttpError(500, "An error occurred while fetching jobs"));
+  }
+};
+
+export const getAllJobs: any = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return next(createHttpError(401, "Unauthorized: Missing user ID"));
+  }
+
+  try {
+    // Find the employer's profile based on the userId
+    const employerProfile = await EmployerProfile.findOne({ userId });
+    if (!employerProfile) {
+      return next(createHttpError(404, "Employer profile not found"));
+    }
+
+    // Fetch all jobs associated with the employer
+    const jobs = await Job.find({ company: employerProfile._id });
+
+    if (jobs.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No jobs found for this employer",
+        data: [],
+      });
+    }
+
+    const appliedUsersByJobId = await Job.aggregate([
+      {
+        $match: {
+          company: employerProfile._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "appliedjobsbycandidatemodels",
+          localField: "_id",
+          foreignField: "appliedJobs.jobId",
+          as: "appliedCandidates",
+        },
+      },
+      {
+        $addFields: {
+          appliedCandidates: {
+            $map: {
+              input: "$appliedCandidates",
+              as: "candidate",
+              in: "$$candidate.userId",
+            },
+          },
         },
       },
     ]);

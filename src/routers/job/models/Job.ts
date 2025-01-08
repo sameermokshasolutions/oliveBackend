@@ -20,6 +20,7 @@ export interface IJob extends Document {
   location: string;
   requirements: string[];
   skills: string[];
+  dateOfApplication?: Date;
 }
 
 const JobSchema: Schema = new Schema(

@@ -1,7 +1,7 @@
-import AppliedJobs from "../models/AppliedJobs.model";
 import { NextFunction, Response } from "express";
 import createHttpError from "http-errors";
 import Job from "../models/Job";
+import AppliedJobsByCandidateModel from "../models/AppliedJobsByCandidateModel";
 
 export const applyForJob = async (
   req: any,
@@ -18,19 +18,25 @@ export const applyForJob = async (
       );
     }
 
-    const existingAppliedJobs = await AppliedJobs.findOne({ userId });
+    const existingAppliedJobs = await AppliedJobsByCandidateModel.findOne({
+      userId,
+    });
 
     if (existingAppliedJobs) {
-      if (existingAppliedJobs.jobId.includes(jobId)) {
+      if (
+        existingAppliedJobs.appliedJobs.some(
+          (job) => job.jobId.toString() === jobId.toString()
+        )
+      ) {
         return next(createHttpError(400, "Job has already been applied"));
       }
 
-      existingAppliedJobs.jobId.push(jobId);
+      existingAppliedJobs.appliedJobs.push({ jobId });
       await existingAppliedJobs.save();
     } else {
-      const jobApplied = new AppliedJobs({
+      const jobApplied = new AppliedJobsByCandidateModel({
         userId,
-        jobId: [jobId],
+        appliedJobs: [{ jobId }],
       });
 
       await jobApplied.save();
@@ -48,7 +54,9 @@ export const applyForJob = async (
       data: existingAppliedJobs,
     });
   } catch (error) {
-    next(createHttpError(500, "An error occurred while applying for the job"));
+    return next(
+      createHttpError(500, "An error occurred while applying for the job")
+    );
   }
 };
 
@@ -60,23 +68,42 @@ export const getAppliedJobs = async (
   const userId = req.user?.id;
 
   try {
-    const AppliedjobsDocument = await AppliedJobs.findOne({ userId });
+    const AppliedjobsDocument = await AppliedJobsByCandidateModel.findOne({
+      userId,
+    });
 
     if (!AppliedjobsDocument) {
       return next(createHttpError("You have not applied for any job yet"));
     }
 
     const allAppliedJobByUser = await Job.find({
-      _id: { $in: AppliedjobsDocument?.jobId },
+      _id: { $in: AppliedjobsDocument?.appliedJobs.map((job) => job.jobId) },
     }).populate({
       path: "company",
       select: "companyName aboutUs",
     });
 
+    const jobsWithDateOfApplication = allAppliedJobByUser.map((job) => {
+      const jobwithDate: any = {};
+      const appliedJob = AppliedjobsDocument.appliedJobs.find(
+        (appliedJob) => appliedJob.jobId.toString() === job._id?.toString()
+      );
+
+      if (appliedJob) {
+        jobwithDate.dateOfApplication = appliedJob.createdAt;
+        jobwithDate.hasApplied = true;
+      }
+
+      return {
+        ...job.toObject(),
+        ...(jobwithDate ?? {}),
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "Applied Jobs fetched successfully",
-      data: allAppliedJobByUser,
+      data: jobsWithDateOfApplication,
     });
   } catch (error) {
     next(createHttpError(500, "An error occurred while fetching applied jobs"));

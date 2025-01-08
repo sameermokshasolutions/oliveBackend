@@ -19,7 +19,6 @@ export const loginUser = async (
   try {
     const { email, password } = req.body;
 
-    // Check if a user with the provided email exists in the database
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       return next(createHttpError(404, "User not found"));
@@ -58,21 +57,19 @@ export const loginUser = async (
       expiresIn: "10h",
     });
 
-    // Set the JWT token in an HTTP-only cookie
     res.cookie("token", token, {
-      httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "strict", // Mitigate CSRF attacks
-      maxAge: 10 * 60 * 60 * 1000, // 10 hours in milliseconds
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", 
+      maxAge: 10 * 60 * 60 * 1000, 
     });
     res.cookie("userRole", existingUser.role, {
-      httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "strict", // Mitigate CSRF attacks
-      maxAge: 10 * 60 * 60 * 1000, // 10 hours in milliseconds
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === "production", 
+      sameSite: "strict", 
+      maxAge: 10 * 60 * 60 * 1000, 
     });
 
-    // Send a success response with user details
     res.status(200).json({
       success: true,
       userId: existingUser._id,
@@ -241,7 +238,9 @@ export const resetPassword = async (
 
     // Validate input
     if (!email || !otp || !newPassword) {
-      throw createHttpError(400, "Email, OTP, and new password are required");
+      return next(
+        createHttpError(400, "Email, OTP, and new password are required")
+      );
     }
 
     // Find the user by email
@@ -249,17 +248,19 @@ export const resetPassword = async (
     console.log(user);
 
     if (!user) {
-      throw createHttpError(404, "User not found");
+      return next(createHttpError(404, "User not found"));
     }
 
     // Check if OTP exists and is not expired
     if (!user.otp || !user.otpExpires || user.otpExpires < new Date()) {
-      throw createHttpError(400, "OTP has expired. Please request a new one.");
+      return next(
+        createHttpError(400, "OTP has expired. Please request a new one.")
+      );
     }
 
     // Verify OTP
     if (user.otp !== otp) {
-      throw createHttpError(400, "Invalid OTP");
+      return next(createHttpError(400, "Invalid OTP"));
     }
 
     // Hash the new password
@@ -279,8 +280,6 @@ export const resetPassword = async (
         "Password reset successfully. You can now log in with your new password.",
     });
   } catch (error) {
-    console.log(error);
-
-    next(error);
+    return next(createHttpError(500, `${error || "something went wrong"}`));
   }
 };

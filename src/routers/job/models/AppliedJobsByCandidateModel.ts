@@ -1,20 +1,22 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-// EmployerAction schema interface
 interface EmployerAction {
   jobId: mongoose.Schema.Types.ObjectId;
   action: string;
   date?: Date;
 }
 
-// AppliedJob schema interface
-export interface iAppliedJob extends Document {
+interface JobsApplied {
+  jobId: mongoose.Schema.Types.ObjectId;
+  createdAt?:any;
+}
+
+export interface iAppliedJobByCandidate extends Document {
   userId: mongoose.Schema.Types.ObjectId;
-  jobId: mongoose.Schema.Types.ObjectId[];
+  appliedJobs: JobsApplied[];
   employerActions: EmployerAction[];
 }
 
-// EmployerAction schema definition
 const employerActionSchema = new Schema<EmployerAction>({
   jobId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -30,8 +32,15 @@ const employerActionSchema = new Schema<EmployerAction>({
   },
 });
 
-// AppliedJob schema definition
-const appliedJobSchema = new Schema<iAppliedJob>(
+const AppliedJobsSchema = new Schema<JobsApplied>({
+  jobId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Job",
+    required: true,
+  },
+}, {timestamps:true});
+
+const appliedJobSchema = new Schema<iAppliedJobByCandidate>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -39,22 +48,15 @@ const appliedJobSchema = new Schema<iAppliedJob>(
       required: true,
       unique: true,
     },
-    jobId: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
-        required: true,
-      },
-    ],
+    appliedJobs: [AppliedJobsSchema],
     employerActions: [employerActionSchema],
   },
   { timestamps: true }
 );
 
-// Model definition
-const AppliedJobs = mongoose.model<iAppliedJob>(
-  "AppliedJobs",
+const AppliedJobsByCandidateModel = mongoose.model<iAppliedJobByCandidate>(
+  "AppliedJobsByCandidateModel",
   appliedJobSchema
 );
 
-export default AppliedJobs;
+export default AppliedJobsByCandidateModel;
