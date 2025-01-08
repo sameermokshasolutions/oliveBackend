@@ -19,7 +19,8 @@
       "./types"
     ]
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "src/routers/admin/controllers/jobSkillController.js"], // Add this line
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "src/routers/admin/controllers/jobSkillController.js"], 
+  // Add this line
   "exclude": [
     "node_modules"
   ]
