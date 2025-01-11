@@ -12,7 +12,7 @@ const app: Application = express();
 
 // CORS Configuration
 const corsOptions = {
-  origin: true, // or specify your frontend URL
+  origin: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionsSuccessStatus: 204,

@@ -21,5 +21,6 @@ employerRouter.get(
   authenticateToken,
   getMyJobsController
 );
+
 employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
 export default employerRouter;
