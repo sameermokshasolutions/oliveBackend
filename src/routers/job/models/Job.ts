@@ -1,5 +1,25 @@
 import mongoose, { Document, Schema } from "mongoose";
+export interface SearchQueryParams {
+  keyword?: string;
+  location?: string;
+  minSalary?: string;
+  maxSalary?: string;
+  jobType?: string;
+  experience?: string;
+  tags?: string;
+  skills?: string;
+  page?: string;
+  limit?: string;
+}
 
+export interface FacetResult {
+  jobs: any[];
+  jobTypes: Array<{ _id: string; count: number }>;
+  locations: Array<{ _id: string; count: number }>;
+  salaryRanges: Array<{ _id: string; count: number }>;
+  experienceLevels: Array<{ _id: string; count: number }>;
+  skills: Array<{ _id: string; count: number }>;
+}
 export interface IJob extends Document {
   jobTitle: string;
   company: mongoose.Schema.Types.ObjectId;

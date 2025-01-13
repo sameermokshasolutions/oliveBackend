@@ -6,8 +6,10 @@ import { authenticateToken } from "../../middlewares/authMiddleware";
 import {
   getJobById,
   getJobs,
+  getJobsWithFacets,
   getPublicJobById,
   getPublicJobs,
+  searchJob,
 } from "./controllers/jobs";
 import {
   applyForJob,
@@ -20,6 +22,8 @@ jobRouter.post("/jobs", createJobValidator, validateRequest, createJob);
 
 // get jobs
 jobRouter.get("/jobs", authenticateToken, getJobs);
+jobRouter.get("/search-jobs", authenticateToken, searchJob);
+jobRouter.get("/search-facets", authenticateToken, getJobsWithFacets);
 jobRouter.get("/jobs/:id", authenticateToken, getJobById);
 jobRouter.get("/public/jobs", getPublicJobs);
 jobRouter.get("/public/jobs/:id", getPublicJobById);
