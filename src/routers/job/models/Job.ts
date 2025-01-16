@@ -5,6 +5,7 @@ export interface SearchQueryParams {
   minSalary?: string;
   maxSalary?: string;
   jobType?: string;
+  jobRole?: string;
   experience?: string;
   tags?: string;
   skills?: string;

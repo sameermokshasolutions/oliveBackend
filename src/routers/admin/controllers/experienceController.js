@@ -3,7 +3,8 @@ const createHttpError = require('http-errors');
 
 exports.getAllExperience = async (req, res, next) => {
   try {
-    const experience = await Experience.find();
+    const sort={sort:1}
+    const experience = await Experience.find().sort(sort);
     res.status(200).json({ success: true, data: experience });
   } catch (error) {
     next(error);
