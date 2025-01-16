@@ -45,6 +45,11 @@ adminRouter.delete('/education/:id', educationController.deleteEducation);
 // Experience routes
 adminRouter.get('/experience', experienceController.getAllExperience);
 adminRouter.post('/experience', validateCreateExperience, experienceController.createExperience);
+adminRouter.post(
+  "/bulk-experience",
+  validateCreateExperience,
+  experienceController.createExperienceInBulk
+);
 adminRouter.put('/experience/:id', validateUpdateExperience, experienceController.updateExperience);
 adminRouter.delete('/experience/:id', experienceController.deleteExperience);
 

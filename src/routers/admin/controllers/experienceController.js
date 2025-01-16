@@ -29,7 +29,46 @@ exports.createExperience = async (req, res, next) => {
     next(error);
   }
 };
+exports.createExperienceInBulk = async (req, res, next) => {
+  try {
+    const { start, end } = req.body;
 
+    if (start % 2 !== 0 || end % 2 !== 0) {
+      throw createHttpError(400, "Start and end must be even numbers");
+    }
+
+    const lastExperience = await Experience.findOne().sort({ sort: -1 });
+    let sort = lastExperience ? lastExperience.sort + 1 : 1;
+
+    const experienceArray = [];
+
+    for (let i = start; i < end; i += 2) {
+      const name = `${i} to ${i + 2} years`;
+
+      const existingExperience = await Experience.findOne({
+        $or: [{ name }, { sort }],
+      });
+      if (existingExperience) {
+        throw createHttpError(
+          409,
+          `Experience with name "${name}" or sort "${sort}" already exists please enter different range.`
+        );
+      }
+
+      experienceArray.push({ name, sort });
+      sort += 1;
+    }
+    const data = await Experience.insertMany(experienceArray);
+
+    res.status(201).json({
+      success: true,
+      message: "Experience levels created successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.updateExperience = async (req, res, next) => {
   try {
     const updatedExperience = await Experience.findByIdAndUpdate(
