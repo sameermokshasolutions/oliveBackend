@@ -50,10 +50,10 @@ export const rejectJob = async (
     
     res.status(200).json({
       success: true,
-      message: "Job Approved Successfully",
+      message: "Job Rejected Successfully",
       data: updatedJobs,
     });
   } catch (error) {
-    return next(createHttpError(500, "Error approving job"));
+    return next(createHttpError(500, "Error rejecting job"));
   }
 };
