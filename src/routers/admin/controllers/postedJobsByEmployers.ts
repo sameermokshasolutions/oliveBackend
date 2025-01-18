@@ -8,10 +8,10 @@ export const getAllJobsPostedByEmployers = async (
   next: NextFunction
 ) => {
   try {
-    const jobs = await Job.find().populate({
-        path: "company",
-        select: "companyName aboutUs",
-      });
+    const jobs = await Job.find().sort({ createdAt: -1 }).populate({
+      path: "company",
+      select: "companyName aboutUs",
+    });
 
     res.status(200).json({
       success: true,

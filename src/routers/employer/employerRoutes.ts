@@ -16,6 +16,8 @@ employerRouter.post(
 );
 
 employerRouter.post("/createJob", authenticateToken, createJobController);
+
+// not in use
 employerRouter.get(
   "/allJobsPostedByEmployer",
   authenticateToken,

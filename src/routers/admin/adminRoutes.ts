@@ -1,6 +1,7 @@
 import { getAllJobsPostedByEmployers } from "./controllers/postedJobsByEmployers";
+import { approveJob } from "./controllers/updateJobApprovalStatusController";
 
-const express = require("express");
+import express from "express";
 const adminRouter = express.Router();
 const jobCategoryController = require("./controllers/jobCategoryController");
 const jobTagController = require("./controllers/jobTagController");
@@ -124,4 +125,6 @@ adminRouter.delete("/experience/:id", experienceController.deleteExperience);
 // get all jobs route
 adminRouter.get(`/jobsPostedByEmployers`, getAllJobsPostedByEmployers);
 
+// approve job
+adminRouter.patch("/approveJob/:id", approveJob);
 export default adminRouter;

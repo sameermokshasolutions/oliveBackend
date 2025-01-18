@@ -26,7 +26,8 @@ export interface IJob extends Document {
   company: mongoose.Schema.Types.ObjectId;
   jobDescription: string;
   jobCategory: string;
-  tags: string[]; //[ 'skill', 'jobtags' ],
+  tags: string[];
+  jobApprovalStatus: string;
   jobRole: string;
   salaryOption: string; // custom or range,
   minSalary: string;
@@ -56,6 +57,12 @@ const JobSchema: Schema = new Schema(
     jobCategory: { type: String, required: true },
     tags: { type: [String], required: true },
     jobRole: { type: String, required: true },
+    jobApprovalStatus: {
+      type: String,
+      enum: ["pending", "approved"],
+      required: true,
+      default: "pending",
+    },
     salaryOption: {
       type: String,
       required: true,

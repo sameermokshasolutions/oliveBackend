@@ -9,10 +9,12 @@ export const getJobs = async (req: any, res: any) => {
   const userId = req.user.id;
 
   try {
-    const jobs = await Job.find().populate({
-      path: "company",
-      select: "companyName aboutUs",
-    });
+    const jobs = await Job.find({ jobApprovalStatus: "approved" })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "company",
+        select: "companyName aboutUs",
+      });
 
     const savedJob = await SavedJob.findOne({ userId }).select("savedJobs");
 
