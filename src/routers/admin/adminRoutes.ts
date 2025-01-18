@@ -1,5 +1,8 @@
 import { getAllJobsPostedByEmployers } from "./controllers/postedJobsByEmployers";
-import { approveJob } from "./controllers/updateJobApprovalStatusController";
+import {
+  approveJob,
+  rejectJob,
+} from "./controllers/updateJobApprovalStatusController";
 
 import express from "express";
 const adminRouter = express.Router();
@@ -127,4 +130,5 @@ adminRouter.get(`/jobsPostedByEmployers`, getAllJobsPostedByEmployers);
 
 // approve job
 adminRouter.patch("/approveJob/:id", approveJob);
+adminRouter.post("/rejectJob", rejectJob);
 export default adminRouter;

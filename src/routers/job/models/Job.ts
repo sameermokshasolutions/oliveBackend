@@ -43,6 +43,7 @@ export interface IJob extends Document {
   requirements: string[];
   skills: string[];
   dateOfApplication?: Date;
+  jobRejectReason?: String;
 }
 
 const JobSchema: Schema = new Schema(
@@ -59,9 +60,12 @@ const JobSchema: Schema = new Schema(
     jobRole: { type: String, required: true },
     jobApprovalStatus: {
       type: String,
-      enum: ["pending", "approved"],
+      enum: ["pending", "approved", "reject"],
       required: true,
       default: "pending",
+    },
+    jobRejectReason: {
+      type: String,
     },
     salaryOption: {
       type: String,

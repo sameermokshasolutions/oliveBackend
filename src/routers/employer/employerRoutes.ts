@@ -17,12 +17,12 @@ employerRouter.post(
 
 employerRouter.post("/createJob", authenticateToken, createJobController);
 
-// not in use
-employerRouter.get(
-  "/allJobsPostedByEmployer",
-  authenticateToken,
-  getMyJobsController
-);
+// // NOT IN USE
+// employerRouter.get(
+//   "/allJobsPostedByEmployer",
+//   authenticateToken,
+//   getMyJobsController
+// );
 
 employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
 export default employerRouter;

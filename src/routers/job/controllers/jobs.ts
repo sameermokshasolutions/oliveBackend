@@ -141,15 +141,16 @@ export const searchJob = async (req: any, res: any) => {
 
     const userId = (req as any).user?.id;
 
-    // Build match conditions
     const matchConditions: any = {};
 
-    // Text search across multiple fields
+    //To get only admin approved jobs
+    matchConditions.$and = [{ jobApprovalStatus: "approved" }];
     if (keyword) {
       matchConditions.$or = [
         { jobTitle: { $regex: keyword, $options: "i" } },
         { jobDescription: { $regex: keyword, $options: "i" } },
         { jobRole: { $regex: keyword, $options: "i" } },
+       
       ];
     }
     if (location) {
@@ -225,10 +226,12 @@ export const searchJob = async (req: any, res: any) => {
           skills: 1,
           createdAt: 1,
           updatedAt: 1,
+          jobApprovalStatus:1,
           "company._id": 1,
           "company.companyName": 1,
           "company.aboutUs": 1,
         },
+
       },
       { $skip: skip },
       { $limit: limitNumber },

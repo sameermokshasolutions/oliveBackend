@@ -4,7 +4,6 @@ import EmployerProfile from "../models/EmployerProfile";
 import mongoose from "mongoose";
 import { validateJobInput } from "../../../utils/validateJobInputs";
 import createHttpError from "http-errors";
-import AppliedJobs from "../../job/models/AppliedJobs.model";
 import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
 export const createJobController: RequestHandler = async (
@@ -76,7 +75,7 @@ export const getMyJobsController: any = async (
       });
     }
 
-    const appliedUsersByJobId = await AppliedJobs.aggregate([
+    const appliedUsersByJobId = await AppliedJobsByCandidateModel.aggregate([
       {
         $match: {
           jobId: { $in: jobs.map((job) => job._id) },
