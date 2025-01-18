@@ -15,7 +15,7 @@ export const employerAuthMiddleware = (
     return next(createHttpError(401, "Unauthorized access"));
   }
 
-  if (userRole !== "employer" || userRole !== "admin") {
+  if (userRole !== "employer") {
     return next(createHttpError(401, "Unauthorized role access"));
   }
 
