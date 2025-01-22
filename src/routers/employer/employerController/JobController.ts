@@ -26,7 +26,7 @@ export const createJob: RequestHandler = async (req: any, res, next) => {
     if (employerProfile) {
       jobData.company = employerProfile._id as mongoose.Schema.Types.ObjectId;
     } else {
-      return next(createHttpError(404, "Employer profile not found"));
+      return next(createHttpError(404, "complete employer profile"));
     }
 
     const newJob = new Job(jobData);
@@ -114,9 +114,26 @@ export const getJobById = async (
   next: NextFunction
 ) => {
   try {
+    const userId = req.user?.id;
     const { jobId } = req.params;
 
-    const job = await Job.findOne({ _id: jobId });
+    if (!userId) {
+      return next(createHttpError(401, "Unauthorized"));
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return next(createHttpError(400, "Invalid job ID"));
+    }
+
+    const employerProfile = await EmployerProfile.findOne({ userId });
+    if (!employerProfile) {
+      return next(createHttpError(404, "Employer profile not found"));
+    }
+
+    const job = await Job.findOne({
+      _id: jobId,
+      company: employerProfile._id,
+    });
 
     if (!job) {
       return next(createHttpError(404, "Job not found"));
@@ -138,9 +155,32 @@ export const UpdateJob = async (
   next: NextFunction
 ) => {
   try {
+    const userId = req.user?.id;
     const { jobId } = req.params;
-
     const jobData: IJob = req.body;
+
+    if (!userId) {
+      return next(createHttpError(401, "Unauthorized"));
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return next(createHttpError(400, "Invalid job ID"));
+    }
+
+    const employerProfile = await EmployerProfile.findOne({ userId });
+    if (!employerProfile) {
+      return next(createHttpError(404, "Employer profile not found"));
+    }
+
+    const job = await Job.findOne({
+      _id: jobId,
+      company: employerProfile._id,
+    });
+
+    if (!job) {
+      return next(createHttpError(404, "Job not found"));
+    }
+
     const updatedJob = await Job.findByIdAndUpdate(jobId, jobData, {
       new: true,
       runValidators: true,
@@ -161,18 +201,37 @@ export const UpdateJob = async (
 };
 
 export const deleteJob = async (
-  req: Request<{ jobId: string }>,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    const userId = req.user?.id;
     const { jobId } = req.params;
 
-    const job = await Job.findByIdAndDelete(jobId);
+    if (!userId) {
+      return next(createHttpError(401, "Unauthorized"));
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return next(createHttpError(400, "Invalid job ID"));
+    }
+
+    const employerProfile = await EmployerProfile.findOne({ userId });
+    if (!employerProfile) {
+      return next(createHttpError(404, "Employer profile not found"));
+    }
+
+    const job = await Job.findOne({
+      _id: jobId,
+      company: employerProfile._id,
+    });
 
     if (!job) {
       return next(createHttpError(404, "Job not found"));
     }
+
+    await Job.findByIdAndDelete(jobId);
 
     res.status(200).json({
       success: true,
