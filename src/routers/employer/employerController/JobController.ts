@@ -142,7 +142,7 @@ export const getJobById = async (
     res.status(200).json({
       success: true,
       message: "Job fetched successfully",
-      job: job,
+      data: job,
     });
   } catch (error) {
     return next(createHttpError(500, "Error fetching job"));
