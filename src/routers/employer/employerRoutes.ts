@@ -6,6 +6,7 @@ import {
 import { authenticateToken } from "../../middlewares/authMiddleware";
 import {
   createJob,
+  deleteJob,
   getAllJobs,
   getJobById,
   UpdateJob,
@@ -27,7 +28,8 @@ employerRouter.get(
 
 // Job CRUD operations
 employerRouter.post("/createJob", authenticateToken, createJob);
-employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
 employerRouter.get("/job/:jobId", employerAuthMiddleware, getJobById);
 employerRouter.put("/job/:jobId", employerAuthMiddleware, UpdateJob);
+employerRouter.delete("/job/:jobId", employerAuthMiddleware, deleteJob);
+employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
 export default employerRouter;
