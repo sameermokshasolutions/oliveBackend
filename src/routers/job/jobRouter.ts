@@ -1,7 +1,4 @@
 import express from "express";
-import { validateRequest } from "../../middlewares/validateRequest";
-import { createJob, UpdateJob } from "./controllers/jobController";
-import { createJobValidator } from "./validators/jobValidator";
 import { authenticateToken } from "../../middlewares/authMiddleware";
 import {
   getJobById,
@@ -18,8 +15,6 @@ import {
 import { getSavedJobs, saveJobs } from "./controllers/savedJobController";
 
 const jobRouter = express.Router();
-jobRouter.post("/jobs", createJobValidator, validateRequest, createJob);
-jobRouter.put("/job/:jobId", validateRequest, UpdateJob);
 
 // get jobs
 jobRouter.get("/jobs", authenticateToken, getJobs);

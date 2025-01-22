@@ -5,8 +5,10 @@ import {
 } from "./employerController/employerProfile";
 import { authenticateToken } from "../../middlewares/authMiddleware";
 import {
-  createJobController,
+  createJob,
   getAllJobs,
+  getJobById,
+  UpdateJob,
 } from "./employerController/JobController";
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
 const employerRouter = express.Router();
@@ -23,7 +25,9 @@ employerRouter.get(
   getEmployerProfile
 );
 
-// job CRUD operations
-employerRouter.post("/createJob", authenticateToken, createJobController);
+// Job CRUD operations
+employerRouter.post("/createJob", authenticateToken, createJob);
 employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
+employerRouter.get("/job/:jobId", employerAuthMiddleware, getJobById);
+employerRouter.put("/job/:jobId", employerAuthMiddleware, UpdateJob);
 export default employerRouter;

@@ -1,4 +1,4 @@
-import { NextFunction, RequestHandler, Response } from "express";
+import { NextFunction, RequestHandler, Response, Request } from "express";
 import Job, { IJob } from "../../job/models/Job";
 import EmployerProfile from "../models/EmployerProfile";
 import mongoose from "mongoose";
@@ -6,11 +6,7 @@ import { validateJobInput } from "../../../utils/validateJobInputs";
 import createHttpError from "http-errors";
 // import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
-export const createJobController: RequestHandler = async (
-  req: any,
-  res,
-  next
-) => {
+export const createJob: RequestHandler = async (req: any, res, next) => {
   const userId = req.user?.id;
 
   if (!userId) {
@@ -46,7 +42,7 @@ export const createJobController: RequestHandler = async (
   }
 };
 
-export const getAllJobs: any = async (
+export const getAllJobs = async (
   req: any,
   res: Response,
   next: NextFunction
@@ -68,7 +64,7 @@ export const getAllJobs: any = async (
     const jobs = await Job.find({ company: employerProfile._id });
 
     if (jobs.length === 0) {
-      return res.status(200).json({
+      res.status(200).json({
         success: true,
         message: "No jobs found for this employer",
         data: [],
@@ -108,8 +104,83 @@ export const getAllJobs: any = async (
       data: appliedUsersByJobId,
     });
   } catch (error) {
-    console.error("Error fetching jobs:", error);
     return next(createHttpError(500, "An error occurred while fetching jobs"));
   }
 };
 
+export const getJobById = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await Job.findOne({ _id: jobId });
+
+    if (!job) {
+      return next(createHttpError(404, "Job not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Job fetched successfully",
+      job: job,
+    });
+  } catch (error) {
+    return next(createHttpError(500, "Error fetching job"));
+  }
+};
+
+export const UpdateJob = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { jobId } = req.params;
+
+    const jobData: IJob = req.body;
+    const updatedJob = await Job.findByIdAndUpdate(jobId, jobData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedJob) {
+      return next(createHttpError(404, "Job not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Job updated successfully",
+      job: updatedJob,
+    });
+  } catch (error) {
+    return next(createHttpError(500, "Error updating job"));
+  }
+};
+
+export const deleteJob = async (
+  req: Request<{ jobId: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await Job.findByIdAndDelete(jobId);
+
+    if (!job) {
+      return next(createHttpError(404, "Job not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Job deleted successfully",
+      data: [],
+    });
+  } catch (error) {
+    console.error(error);
+    return next(createHttpError(500, "Error deleting job"));
+  }
+};
