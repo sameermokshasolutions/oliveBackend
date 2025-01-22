@@ -6,7 +6,7 @@ import { config } from "../config/config";
 
 export const employerAuthMiddleware = (
   req: any,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   const token = req.cookies.token;

@@ -4,7 +4,7 @@ import EmployerProfile from "../models/EmployerProfile";
 import mongoose from "mongoose";
 import { validateJobInput } from "../../../utils/validateJobInputs";
 import createHttpError from "http-errors";
-import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
+// import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
 export const createJobController: RequestHandler = async (
   req: any,
@@ -43,75 +43,6 @@ export const createJobController: RequestHandler = async (
     });
   } catch (error) {
     return next(createHttpError(500, "Error while creating job"));
-  }
-};
-
-export const getMyJobsController: any = async (
-  req: any,
-  res: Response,
-  next: NextFunction
-) => {
-  const userId = req.user?.id;
-
-  if (!userId) {
-    return next(createHttpError(401, "Unauthorized: Missing user ID"));
-  }
-
-  try {
-    // Find the employer's profile based on the userId
-    const employerProfile = await EmployerProfile.findOne({ userId });
-    if (!employerProfile) {
-      return next(createHttpError(401, "Employer profile not found"));
-    }
-
-    // Fetch all jobs associated with the employer
-    const jobs = await Job.find({ company: employerProfile._id });
-
-    if (jobs.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message: "No jobs found for this employer",
-        data: [],
-      });
-    }
-
-    const appliedUsersByJobId = await AppliedJobsByCandidateModel.aggregate([
-      {
-        $match: {
-          jobId: { $in: jobs.map((job) => job._id) },
-        },
-      },
-      {
-        $unwind: "$jobId",
-      },
-      {
-        $lookup: {
-          from: "jobs",
-          localField: "jobId",
-          foreignField: "_id",
-          as: "jobDetails",
-        },
-      },
-      {
-        $unwind: "$jobDetails",
-      },
-      {
-        $group: {
-          _id: "$jobId",
-          appliedUsers: { $push: "$userId" },
-          jobDetails: { $first: "$jobDetails" },
-        },
-      },
-    ]);
-
-    res.status(200).json({
-      success: true,
-      message: "Jobs fetched successfully",
-      data: appliedUsersByJobId,
-    });
-  } catch (error) {
-    console.error("Error fetching jobs:", error);
-    return next(createHttpError(500, "An error occurred while fetching jobs"));
   }
 };
 
@@ -181,3 +112,4 @@ export const getAllJobs: any = async (
     return next(createHttpError(500, "An error occurred while fetching jobs"));
   }
 };
+

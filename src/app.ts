@@ -38,7 +38,7 @@ app.use("/api/employer/", employerRouter);
 app.use("/api/job", jobRouter);
 
 // Root route
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   res.send("Hello World!");
 });
 

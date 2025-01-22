@@ -25,14 +25,10 @@ import {
 } from "./userController/profile"; // Controllers for various user profile operations
 import { upload } from "../../middlewares/uploadMiddleware"; // Middleware for handling file uploads
 import { authenticateToken } from "../../middlewares/authMiddleware"; // Middleware for token authentication
-import {
-  getJobById,
-  getJobs,
-  getPublicJobById,
-  getPublicJobs,
-} from "../job/controllers/jobs";
 
-const userRouter = express.Router(); // Initialize the Express router for user-related routes
+
+// Initialize the Express router for user-related routes
+const userRouter = express.Router(); 
 
 // Route for user registration with validation middleware
 // Validates the registration data before passing it to the controller
