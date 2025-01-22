@@ -8,10 +8,14 @@ import { logProfileActivity } from "../../../utils/activityLogger";
 import { checkUpdate } from "../../../utils/checkUpdate";
 import { EmployerInfo } from "../userModals/EmployerInfo";
 import usermodal from "../userModals/usermodal";
-import { NextFunction } from "express-serve-static-core";
+import { NextFunction } from "express";
 
 // Handler to update or create candidate profile with profile picture
-export const profileUpdate: RequestHandler = async (req: any, res, next) => {
+export const profileUpdate: RequestHandler = async (
+  req: any,
+  res,
+  next: NextFunction
+) => {
   try {
     // Extract user ID from JWT
     const userId = req.user.id;
@@ -67,7 +71,11 @@ export const profileUpdate: RequestHandler = async (req: any, res, next) => {
 };
 
 // Handler to update or create candidate resume
-export const resumeUpdate: RequestHandler = async (req, res, next) => {
+export const resumeUpdate: RequestHandler = async (
+  req,
+  res,
+  next: NextFunction
+) => {
   try {
     // Extract user ID from JWT
     const userId = getUserId(req);
@@ -168,8 +176,12 @@ interface CandidateInfoBody {
   }>;
 }
 
-// Route handler to get the consolidated data 
-export const updateUserFile = async (req: any, res: any, next: any) => {
+// Route handler to get the consolidated data
+export const updateUserFile = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
   console.log(req.body);
 
   try {
@@ -186,53 +198,55 @@ export const updateUserFile = async (req: any, res: any, next: any) => {
       throw createHttpError(400, "Profile URL is required");
     }
 
-    console.log('Received userId:', userId, 'Profile URL:', fileurl);
+    console.log("Received userId:", userId, "Profile URL:", fileurl);
 
     // Check if candidate information exists
     const candidate = await CandidateInfo.findOne({ userId });
 
     if (candidate) {
       // Update the profile URL
-      if (type == 'pdf') {
+      if (type == "pdf") {
         candidate.resumeUrl = fileurl;
-      } else if (type == 'img') {
+      } else if (type == "img") {
         candidate.profileUrl = fileurl;
       } else {
         throw createHttpError(400, "Invalid File type ");
       }
       await candidate.save();
-      console.log('Candidate profile updated:', candidate);
+      console.log("Candidate profile updated:", candidate);
     } else {
       // Create a new record with default values and the provided profile URL
-      let newCandidate
-      if (type == 'pdf') {
+      let newCandidate;
+      if (type == "pdf") {
         newCandidate = new CandidateInfo({
           userId,
           resumeUrl: fileurl,
-
         });
-
       } else {
         newCandidate = new CandidateInfo({
           userId,
           profileUrl: fileurl,
-
         });
       }
 
-
       await newCandidate.save();
-      console.log('New candidate profile created:', newCandidate);
+      console.log("New candidate profile created:", newCandidate);
     }
 
     // Return a success response
-    return res.status(200).json({ success: true, message: "Profile updated successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Profile updated successfully" });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error("Error updating profile:", error);
     next(error instanceof Error ? createHttpError(500, error.message) : error);
   }
 };
-export const removeProfileUrl = async (req: any, res: any, next: any) => {
+export const removeProfileUrl = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
   try {
     // Extract user ID from JWT
     const userId = getUserId(req);
@@ -240,24 +254,27 @@ export const removeProfileUrl = async (req: any, res: any, next: any) => {
       throw createHttpError(401, "Unauthorized: User ID not found");
     }
 
-
-
-
     // Check if candidate information exists
     const candidate = await CandidateInfo.findOne({ userId });
     if (candidate) {
       // Update the profile URL
-      candidate.profileUrl = '';
+      candidate.profileUrl = "";
       await candidate.save();
     }
     // Return a success response
-    return res.status(200).json({ success: true, message: "Profile removed successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Profile removed successfully" });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error("Error updating profile:", error);
     next(error instanceof Error ? createHttpError(500, error.message) : error);
   }
 };
-export const getUserProfile = async (req: any, res: any, next: any) => {
+export const getUserProfile = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
   try {
     // Extract user ID from JWT
     const userId = req.user.id;
@@ -283,9 +300,12 @@ export const getUserProfile = async (req: any, res: any, next: any) => {
   }
 };
 
-
 // Route handler to update or create candidate detailed information
-export const updateUserProfile: RequestHandler = async (req: any, res, next) => {
+export const updateUserProfile: RequestHandler = async (
+  req: any,
+  res,
+  next: NextFunction
+) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -306,13 +326,13 @@ export const updateUserProfile: RequestHandler = async (req: any, res, next) => 
     );
 
     // Update User model
-    const userPromise = usermodal.findByIdAndUpdate(userId, userUpdates, {
+    const userPromise = await usermodal.findByIdAndUpdate(userId, userUpdates, {
       new: true,
       runValidators: true,
     });
 
     // Update or create CandidateInfo model
-    const candidatePromise = CandidateInfo.findOneAndUpdate(
+    const candidatePromise = await CandidateInfo.findOneAndUpdate(
       { userId },
       candidateUpdates,
       { new: true, upsert: true, runValidators: true }
@@ -351,7 +371,7 @@ export const updateUserProfile: RequestHandler = async (req: any, res, next) => 
 export const employerProfile: RequestHandler = async (
   req,
   res,
-  next
+  next:NextFunction
 ): Promise<void> => {
   const { ...profileData } = req.body;
   const userId = getUserId(req);
@@ -377,12 +397,10 @@ export const employerProfile: RequestHandler = async (
         profileData,
         "employerInfo"
       );
-      res
-        .status(200)
-        .json({
-          message: "Profile updated successfully",
-          profile: updatedProfile,
-        });
+      res.status(200).json({
+        message: "Profile updated successfully",
+        profile: updatedProfile,
+      });
     } else {
       // Log and create a new employer profile if not found
       await logProfileActivity(
@@ -395,7 +413,7 @@ export const employerProfile: RequestHandler = async (
       const newProfile = new EmployerInfo({ userId, ...profileData });
       await newProfile.save();
       res
-        .status(201)
+        .status(200)
         .json({ message: "Profile created successfully", profile: newProfile });
     }
   } catch (error) {
