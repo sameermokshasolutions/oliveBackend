@@ -1,6 +1,18 @@
 import { truncate } from "fs";
 import mongoose from "mongoose";
 
+export interface CandidateSearchFilters {
+  skills?: string[];
+  experienceYears?: { min?: number; max?: number };
+  jobPreferences?: string[];
+  jobRolePreferences?: string[];
+  educationLevel?: string;
+  expectedSalary?: { min?: number; max?: number };
+  preferredJobLocation?: string[];
+  availability?: string;
+  languages?: string[];
+  gender?: string;
+}
 const socialSchema = new mongoose.Schema({
   social: { type: String, required: true },
   link: { type: String, required: true },

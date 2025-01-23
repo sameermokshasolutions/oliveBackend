@@ -9,6 +9,7 @@ import {
   deleteJob,
   getAllJobs,
   getJobById,
+  searchCandidates,
   UpdateJob,
 } from "./employerController/JobController";
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
@@ -32,4 +33,5 @@ employerRouter.get("/job/:jobId", employerAuthMiddleware, getJobById);
 employerRouter.put("/job/:jobId", employerAuthMiddleware, UpdateJob);
 employerRouter.delete("/job/:jobId", employerAuthMiddleware, deleteJob);
 employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
+employerRouter.post("/searchCandidate",employerAuthMiddleware,searchCandidates);
 export default employerRouter;
