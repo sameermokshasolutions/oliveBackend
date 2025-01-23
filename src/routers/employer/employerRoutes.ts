@@ -27,11 +27,17 @@ employerRouter.get(
   getEmployerProfile
 );
 
-// Job CRUD operations
+// JOB CRUD OPERATIONS
 employerRouter.post("/createJob", authenticateToken, createJob);
 employerRouter.get("/job/:jobId", employerAuthMiddleware, getJobById);
 employerRouter.put("/job/:jobId", employerAuthMiddleware, UpdateJob);
 employerRouter.delete("/job/:jobId", employerAuthMiddleware, deleteJob);
 employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
-employerRouter.post("/searchCandidate",employerAuthMiddleware,searchCandidates);
+
+// CANDIDATE SEARCH AND FILTERING
+employerRouter.post(
+  "/searchCandidate",
+  employerAuthMiddleware,
+  searchCandidates
+);
 export default employerRouter;
