@@ -244,6 +244,7 @@ export const deleteJob = async (
     return next(createHttpError(500, "Error deleting job"));
   }
 };
+
 export const searchCandidates = async (
   req: any,
   res: Response,

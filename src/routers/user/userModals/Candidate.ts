@@ -46,7 +46,11 @@ const educationSchema = new mongoose.Schema({
 
 const candidateSchema = new mongoose.Schema(
   {
-    userId: {},
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     resumeUrl: {
       type: String,
       required: false,

@@ -284,17 +284,22 @@ export const getUserProfile = async (
 
     // Check if candidate information exists
     const candidate = await CandidateInfo.findOne({ userId });
-    const userData = await usermodal.findOne({ _id: userId }); // Use `findOne` for a single user
+    const userData = await usermodal.findOne({ _id: userId }).select("-password -otp -otpExpires "); 
 
     // Consolidate data into a single object
     const consolidatedData = {
       ...(candidate?.toObject() || {}), // Convert Mongoose document to a plain object
       ...(userData?.toObject() || {}), // Convert Mongoose document to a plain object
     };
-    console.log(consolidatedData);
 
     // Return the consolidated data
-    return res.status(200).json({ success: true, data: consolidatedData });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "profile data fetched successfully",
+        data: consolidatedData,
+      });
   } catch (error) {
     next(error instanceof Error ? createHttpError(500, error.message) : error);
   }
@@ -371,7 +376,7 @@ export const updateUserProfile: RequestHandler = async (
 export const employerProfile: RequestHandler = async (
   req,
   res,
-  next:NextFunction
+  next: NextFunction
 ): Promise<void> => {
   const { ...profileData } = req.body;
   const userId = getUserId(req);
