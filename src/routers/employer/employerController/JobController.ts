@@ -258,7 +258,7 @@ export const searchCandidates = async (
         $lookup: {
           from: "users", 
           localField: "userId",
-          foreignField: "userId",
+          foreignField: "_id",
           as: "userDetails",
         },
       },
