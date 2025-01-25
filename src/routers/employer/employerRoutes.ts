@@ -38,7 +38,7 @@ employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
 // CANDIDATES
 employerRouter.get(
   "/AppliedCandidates/:jobId",
-  employerAuthMiddleware,
+  // employerAuthMiddleware,
   getAppliedCandidates
 );
 

@@ -284,7 +284,9 @@ export const getUserProfile = async (
 
     // Check if candidate information exists
     const candidate = await CandidateInfo.findOne({ userId });
-    const userData = await usermodal.findOne({ _id: userId }).select("-password -otp -otpExpires "); 
+    const userData = await usermodal
+      .findOne({ _id: userId })
+      .select("-password -otp -otpExpires ");
 
     // Consolidate data into a single object
     const consolidatedData = {
@@ -293,13 +295,11 @@ export const getUserProfile = async (
     };
 
     // Return the consolidated data
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "profile data fetched successfully",
-        data: consolidatedData,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "profile data fetched successfully",
+      data: consolidatedData,
+    });
   } catch (error) {
     next(error instanceof Error ? createHttpError(500, error.message) : error);
   }

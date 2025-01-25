@@ -117,7 +117,7 @@ const candidateSchema = new mongoose.Schema(
     educationList: [educationSchema],
     firstname: { type: String, required: false },
     lastname: { type: String, required: false },
-    experienceYears: { type: Number, required: false },
+    experienceYears: { type: Number, required: true, default: 0 },
     educationLevel: { type: String, required: false },
     phoneNumber: { type: String, required: false },
     email: { type: String, required: false },
