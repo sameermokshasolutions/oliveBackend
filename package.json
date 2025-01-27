@@ -1,7 +1,7 @@
 {
   "name": "olivehelthbackend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.ts",
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
