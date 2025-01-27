@@ -1,35 +1,48 @@
-const Experience = require("../models/Experience");
-const createHttpError = require("http-errors");
+import Experience from "../models/Experience";
+import createHttpError from "http-errors";
+import { Request, Response, NextFunction } from "express";
 
-exports.getAllExperience = async (req, res, next) => {
+export const getAllExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const sort = { sort: 1 };
-    const experience = await Experience.find().sort(sort);
+    const sortField = "name";
+    const sortOrder = 1;
+
+    const experience = await Experience.find().sort({ [sortField]: sortOrder });
     res.status(200).json({ success: true, data: experience });
   } catch (error) {
     next(error);
   }
 };
 
-exports.createExperience = async (req, res, next) => {
+export const createExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const existingSort = await Experience.findOne({ sort: req.body.sort });
     if (existingSort) {
       throw createHttpError(409, "Sort already added");
     }
     const newExperience = await Experience.create(req.body);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Experience level created successfully",
-        data: newExperience,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Experience level created successfully",
+      data: newExperience,
+    });
   } catch (error) {
     next(error);
   }
 };
-exports.createExperienceInBulk = async (req, res, next) => {
+export const createExperienceInBulk = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { start, end } = req.body;
 
@@ -69,7 +82,11 @@ exports.createExperienceInBulk = async (req, res, next) => {
     next(error);
   }
 };
-exports.updateExperience = async (req, res, next) => {
+export const updateExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const updatedExperience = await Experience.findByIdAndUpdate(
       req.params.id,
@@ -78,29 +95,29 @@ exports.updateExperience = async (req, res, next) => {
     );
     if (!updatedExperience)
       throw createHttpError(404, "Experience level not found");
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Experience level updated successfully",
-        data: updatedExperience,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Experience level updated successfully",
+      data: updatedExperience,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-exports.deleteExperience = async (req, res, next) => {
+export const deleteExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const deletedExperience = await Experience.findByIdAndDelete(req.params.id);
     if (!deletedExperience)
       throw createHttpError(404, "Experience level not found");
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Experience level deleted successfully",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Experience level deleted successfully",
+    });
   } catch (error) {
     next(error);
   }

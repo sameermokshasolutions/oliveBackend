@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const educationSchema = new mongoose.Schema({
   name: {
@@ -9,5 +9,6 @@ const educationSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Education', educationSchema);
+const Education = mongoose.model('Education', educationSchema);
+export default Education
 
