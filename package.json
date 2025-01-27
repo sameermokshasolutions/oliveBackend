@@ -1,12 +1,12 @@
 {
   "name": "olivehelthbackend",
   "version": "1.0.0",
-  "main": "./dist/server.js",
+  "main": "./dist/src/server.js",
   "scripts": {
-    "build": "tsc --build",
-    "clean": "tsc --build --clean",
-    "start": "node dist/server.js",
-    "dev": "nodemon server.ts"
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/src/server.js",
+    "tsx": " npx tsx src/server.ts"
   },
   "author": "",
   "license": "ISC",
