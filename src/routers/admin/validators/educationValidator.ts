@@ -1,13 +1,13 @@
-const { body, param } = require('express-validator');
+import { body, param } from 'express-validator';
 
-exports.validateCreateEducation = [
+export const validateCreateEducation = [
   body('name')
     .trim()
     .notEmpty().withMessage('Education level name is required')
     .isLength({ min: 2, max: 50 }).withMessage('Education level name must be between 2 and 50 characters')
 ];
 
-exports.validateUpdateEducation = [
+export const validateUpdateEducation = [
   param('id').isMongoId().withMessage('Invalid education level ID'),
   body('name')
     .optional()

@@ -1,13 +1,13 @@
-const { body, param } = require('express-validator');
+import { body, param } from 'express-validator';
 
-exports.validateCreateJobTag = [
+export const validateCreateJobTag = [
   body('name')
     .trim()
     .notEmpty().withMessage('Job tag name is required')
     .isLength({ min: 2, max: 30 }).withMessage('Job tag name must be between 2 and 30 characters')
 ];
 
-exports.validateUpdateJobTag = [
+export const validateUpdateJobTag = [
   param('id').isMongoId().withMessage('Invalid job tag ID'),
   body('name')
     .optional()

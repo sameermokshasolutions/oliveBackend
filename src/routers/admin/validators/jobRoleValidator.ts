@@ -1,6 +1,6 @@
-const { body, param } = require('express-validator');
+import { body, param } from 'express-validator';
 
-exports.validateCreateJobRole = [
+export const validateCreateJobRole = [
   body('name')
     .trim()
     .notEmpty().withMessage('Job role name is required')
@@ -8,7 +8,7 @@ exports.validateCreateJobRole = [
 
 ];
 
-exports.validateUpdateJobRole = [
+export const validateUpdateJobRole = [
   param('id').isMongoId().withMessage('Invalid job role ID'),
   body('name')
     .optional()
