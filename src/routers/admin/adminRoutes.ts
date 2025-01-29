@@ -61,6 +61,7 @@ import {
   validateCreateExperience,
   validateUpdateExperience,
 } from "./validators/experienceValidator";
+import { getAllEmployers } from "./controllers/employerController";
 
 const adminRouter = express.Router();
 
@@ -119,5 +120,8 @@ adminRouter.get(`/jobsPostedByEmployers`, getAllJobsPostedByEmployers);
 // approve job
 adminRouter.patch("/approveJob/:id", approveJob);
 adminRouter.post("/rejectJob", rejectJob);
+
+// EMPLOYERS
+adminRouter.get("/employers", getAllEmployers);
 
 export default adminRouter;
