@@ -62,6 +62,8 @@ import {
   validateUpdateExperience,
 } from "./validators/experienceValidator";
 import { getAllEmployers } from "./controllers/employerController";
+import { getAllCandidates } from "./controllers/candidateController";
+import { adminAuthMiddleware } from "../../middlewares/adminAuthMiddleware";
 
 const adminRouter = express.Router();
 
@@ -123,5 +125,8 @@ adminRouter.post("/rejectJob", rejectJob);
 
 // EMPLOYERS
 adminRouter.get("/employers", getAllEmployers);
+
+// CANDIDATE
+adminRouter.get("/candidates", adminAuthMiddleware, getAllCandidates);
 
 export default adminRouter;
