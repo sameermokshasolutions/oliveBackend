@@ -10,13 +10,13 @@ export interface IUser extends Document {
   phoneNumber?: string;
   emailVerification?: boolean;
   status: "Active" | "Inactive";
+  accountStatus?: "Active" | "Inactive" | "Suspended";
+  profileStatus: boolean; // content moderation status
   createdAt?: Date;
   updatedAt?: Date;
   profilePictureUrl?: string;
   lastLogin?: Date;
-  accountStatus?: "Active" | "Inactive" | "Suspended";
   twoFactorEnabled?: boolean;
-  profileStatus: boolean; // content moderation status
   otpEnabled?: boolean;
   notificationPreference?: "Email" | "SMS" | "Push Notifications";
   jobApplied?: ObjectId[]; // Array of job IDs (ObjectIds)
@@ -36,13 +36,11 @@ const UserSchema: Schema = new Schema(
     },
     firstName: { type: String, required: true },
     lastName: { type: String },
-    email: { type: String, required: true, match: /^\S+@\S+\.\S+$/ },
+    email: { type: String, required: true, match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
     password: { type: String, required: true },
     biography: { type: String, default: "" },
     phoneNumber: { type: String, match: /^[0-9]{10,20}$/ },
     status: { type: String, enum: ["Active", "Inactive"], default: "Active" },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
     profilePictureUrl: { type: String },
     lastLogin: { type: Date },
     accountStatus: {
@@ -58,7 +56,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       enum: ["Email", "SMS", "Push Notifications"],
     },
-    verificationToken: { type: String, },
+    verificationToken: { type: String },
     otp: { type: String, default: "" },
     otpExpires: { type: Date, default: "" },
     profileStatus: { type: Boolean, default: false },

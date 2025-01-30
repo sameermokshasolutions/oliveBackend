@@ -150,7 +150,6 @@ export const searchJob = async (req: any, res: any) => {
         { jobTitle: { $regex: keyword, $options: "i" } },
         { jobDescription: { $regex: keyword, $options: "i" } },
         { jobRole: { $regex: keyword, $options: "i" } },
-       
       ];
     }
     if (location) {
@@ -226,12 +225,11 @@ export const searchJob = async (req: any, res: any) => {
           skills: 1,
           createdAt: 1,
           updatedAt: 1,
-          jobApprovalStatus:1,
+          jobApprovalStatus: 1,
           "company._id": 1,
           "company.companyName": 1,
           "company.aboutUs": 1,
         },
-
       },
       { $skip: skip },
       { $limit: limitNumber },
