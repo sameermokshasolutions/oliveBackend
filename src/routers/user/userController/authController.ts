@@ -58,13 +58,13 @@ export const loginUser = async (
     });
 
     res.cookie("token", token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 10 * 60 * 60 * 1000,
     });
     res.cookie("userRole", existingUser.role, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 10 * 60 * 60 * 1000,
