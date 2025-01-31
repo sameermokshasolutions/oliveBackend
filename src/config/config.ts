@@ -7,7 +7,7 @@ conf();
 const _config = {
     port: process.env.PORT || 3000,
     databaseUrl: process.env.MONGO_CONNECTION_STRING || '',
-    env: process.env.NODE_ENV || 'development',
+    env: process.env.NODE_ENV,
     jwtSecret: process.env.JWT_SECRET || 'sfasdfasdfasfas',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
     frontEndUrl:process.env.FRONTENd_URL,
