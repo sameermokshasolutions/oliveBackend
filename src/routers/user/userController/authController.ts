@@ -97,12 +97,14 @@ export const logoutUser = (
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
+      domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
 
     res.clearCookie("userRole", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
+      domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
 
     console.log("Cookies cleared. Sending response.");
