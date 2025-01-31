@@ -64,6 +64,8 @@ import {
 import { getAllEmployers } from "./controllers/employerController";
 import { getAllCandidates } from "./controllers/candidateController";
 import { adminAuthMiddleware } from "../../middlewares/adminAuthMiddleware";
+import { getAllJobs } from "./controllers/jobsController";
+import { getLatestUsers } from "./controllers/usersController";
 
 const adminRouter = express.Router();
 
@@ -129,4 +131,9 @@ adminRouter.get("/employers", getAllEmployers);
 // CANDIDATE
 adminRouter.get("/candidates", adminAuthMiddleware, getAllCandidates);
 
+// JOBS
+adminRouter.get("/jobs", getAllJobs);
+
+// LATEST USERS
+adminRouter.get("/users", getLatestUsers);
 export default adminRouter;

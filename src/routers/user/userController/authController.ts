@@ -95,14 +95,14 @@ export const logoutUser = (
     // Clear cookies
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: config.env === "production",
       sameSite: "strict",
       domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
 
     res.clearCookie("userRole", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: config.env === "production",
       sameSite: "strict",
       domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
