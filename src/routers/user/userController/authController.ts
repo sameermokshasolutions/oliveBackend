@@ -62,14 +62,14 @@ export const loginUser = async (
       secure: config.env === "production",
       sameSite: "lax",
       maxAge: 10 * 60 * 60 * 1000,
-      domain: config.env === "production" ? ".hijr.com" : "localhost",
+      domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
     res.cookie("userRole", existingUser.role, {
       httpOnly: true,
       secure: config.env === "production",
       sameSite: "lax",
       maxAge: 10 * 60 * 60 * 1000,
-      domain: config.env === "production" ? ".hijr.com" : "localhost",
+      domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
 
     res.status(200).json({
