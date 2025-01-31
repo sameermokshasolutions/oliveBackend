@@ -62,12 +62,14 @@ export const loginUser = async (
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 10 * 60 * 60 * 1000,
+      domain: process.env.NODE_ENV === "production" ? ".hijr.com" : "localhost",
     });
     res.cookie("userRole", existingUser.role, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 10 * 60 * 60 * 1000,
+      domain: process.env.NODE_ENV === "production" ? ".hijr.com" : "localhost",
     });
 
     res.status(200).json({
