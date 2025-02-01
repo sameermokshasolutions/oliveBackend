@@ -53,7 +53,7 @@ export const loginUser = async (
     }
 
     // Generate a JWT token for the authenticated user with a 10-hour expiration
-    const token = jwt.sign({ id: existingUser._id }, config.jwtSecret, {
+    const token = jwt.sign({ id: existingUser._id, userRole:existingUser.role }, config.jwtSecret, {
       expiresIn: "10h",
     });
 

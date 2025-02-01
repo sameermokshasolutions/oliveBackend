@@ -38,7 +38,7 @@ export const getAllJobs = async (
       matchConditions.jobType = jobType;
     }
     if (approvalStatus) {
-      matchConditions.approvalStatus = approvalStatus;
+      matchConditions.jobApprovalStatus = approvalStatus;
     }
 
     const aggregationPipeline: mongoose.PipelineStage[] = [
@@ -97,13 +97,13 @@ export const getAllJobs = async (
       Job.aggregate(totalCountPipeline),
     ]);
 
-    const totalDocuments = totalCountResult[0].total;
+    const totalDocuments =  totalCountResult[0]?.total || 0;
 
     res.status(200).json({
       success: true,
       message: "Jobs fetched successfully",
       data: {
-        Jobs,
+        jobs: Jobs,
         pagination: {
           total: totalDocuments,
           page: pageNumber,
@@ -113,6 +113,7 @@ export const getAllJobs = async (
       },
     });
   } catch (error) {
+    console.log(error);
     return next(createHttpError(500, "Internal server error"));
   }
 };
