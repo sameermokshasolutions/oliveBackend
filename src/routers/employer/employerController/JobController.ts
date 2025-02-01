@@ -4,7 +4,9 @@ import EmployerProfile from "../models/EmployerProfile";
 import mongoose from "mongoose";
 import { validateJobInput } from "../../../utils/validateJobInputs";
 import createHttpError from "http-errors";
-import CandidateModel, { CandidateSearchFilters } from "../../user/userModals/Candidate";
+import CandidateModel, {
+  CandidateSearchFilters,
+} from "../../user/userModals/Candidate";
 // import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
 export const createJob: RequestHandler = async (req: any, res, next) => {
@@ -58,7 +60,9 @@ export const getAllJobs = async (
     // Find the employer's profile based on the userId
     const employerProfile = await EmployerProfile.findOne({ userId });
     if (!employerProfile) {
-      return next(createHttpError(404, "Employer profile not found"));
+      return next(
+        createHttpError(403, "Please complete your profile first")
+      );
     }
 
     // Fetch all jobs associated with the employer
@@ -253,10 +257,9 @@ export const searchCandidates = async (
   try {
     const filters = req.body;
     const pipeline: mongoose.PipelineStage[] = [
-      
       {
         $lookup: {
-          from: "users", 
+          from: "users",
           localField: "userId",
           foreignField: "_id",
           as: "userDetails",
@@ -308,7 +311,6 @@ export const searchCandidates = async (
     const limit = Math.max(1, parseInt(req.body.limit) || 10);
     const skip = (page - 1) * limit;
 
-    
     pipeline.push({
       $project: {
         firstname: {
@@ -339,7 +341,7 @@ export const searchCandidates = async (
     const [candidates, countResult] = await Promise.all([
       CandidateModel.aggregate(pipeline),
       CandidateModel.aggregate([
-        ...pipeline.slice(0, -2), 
+        ...pipeline.slice(0, -2),
         { $count: "totalCount" },
       ]),
     ]);
