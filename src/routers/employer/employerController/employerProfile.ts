@@ -61,7 +61,7 @@ export const updateProfileController: RequestHandler = async (
       data: updatedProfile,
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "error updating profile"));
   }
 };
 
@@ -79,7 +79,11 @@ export const getEmployerProfile: RequestHandler = async (
     const employerProfle = await EmployerProfile.findOne({ userId });
 
     if (!employerProfle) {
-      return next(createHttpError(404, "Employer profile not created"));
+      res.status(200).json({
+        success: true,
+        message: "Employer profile not created",
+        data: null,
+      });
     }
 
     res.status(200).json({

@@ -60,9 +60,7 @@ export const getAllJobs = async (
     // Find the employer's profile based on the userId
     const employerProfile = await EmployerProfile.findOne({ userId });
     if (!employerProfile) {
-      return next(
-        createHttpError(403, "Please complete your profile first")
-      );
+      return next(createHttpError(403, "Complete your profile"));
     }
 
     // Fetch all jobs associated with the employer
@@ -102,6 +100,14 @@ export const getAllJobs = async (
         },
       },
     ]);
+
+    if (appliedUsersByJobId.length === 0) {
+      res.status(200).json({
+        success: true,
+        message: "No jobs found",
+        data: [],
+      });
+    }
 
     res.status(200).json({
       success: true,

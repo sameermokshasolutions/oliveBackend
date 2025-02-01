@@ -51,12 +51,10 @@ const EmployerProfileSchema: Schema = new Schema(
     company_type: {
       type: String,
       enum: Object.values(CompanyType),
-      required: true,
     },
     industrySector: {
       type: String,
       enum: Object.values(IndustrySector),
-      required: true,
     },
     location: { type: String, required: true },
     websiteLink: { type: String, required: true },
@@ -71,7 +69,7 @@ const EmployerProfileSchema: Schema = new Schema(
     bannerImage: { type: String },
     yearOfEstablishment: { type: String },
     companyVision: { type: String },
-    publicEmail: { type: String, required: true },
+    publicEmail: { type: String},
   },
   { timestamps: true }
 );
