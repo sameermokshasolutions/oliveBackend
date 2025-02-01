@@ -10,17 +10,21 @@ export const adminAuthMiddleware = (
   next: NextFunction
 ): void => {
   const token = req.cookies.token;
-  const userRole = req.cookies.userRole;
   if (!token) {
     return next(createHttpError(401, "Unauthorized access"));
   }
 
-  if (userRole !== "admin") {
-    return next(createHttpError(401, "Unauthorized role access"));
-  }
-
   try {
-    const decoded = jwt.verify(token, config.jwtSecret) as { id: string };
+    const decoded = jwt.verify(token, config.jwtSecret) as {
+      id: string;
+      userRole: string;
+    };
+
+    const userRole = decoded.userRole;
+
+    if (userRole !== "admin") {
+      return next(createHttpError(401, "Unauthorized role access"));
+    }
 
     req.user = { id: decoded.id };
     next();

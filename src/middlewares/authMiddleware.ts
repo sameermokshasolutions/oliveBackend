@@ -6,12 +6,11 @@ import { config } from "../config/config";
 
 export const authenticateToken = (
   req: any,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   const token = req.cookies.token;
-      if (!token) {
-    // return res.status(401).json({ success: false, message: 'Unauthorized access' });
+  if (!token) {
     return next(createHttpError(401, "Unauthorized access"));
   }
 

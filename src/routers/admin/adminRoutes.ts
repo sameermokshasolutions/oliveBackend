@@ -1,9 +1,4 @@
 import express from "express";
-import { getAllJobsPostedByEmployers } from "./controllers/postedJobsByEmployers";
-import {
-  approveJob,
-  rejectJob,
-} from "./controllers/updateJobApprovalStatusController";
 import {
   createEducation,
   updateEducation,
@@ -64,7 +59,7 @@ import {
 import { getAllEmployers } from "./controllers/employerController";
 import { getAllCandidates } from "./controllers/candidateController";
 import { adminAuthMiddleware } from "../../middlewares/adminAuthMiddleware";
-import { getAllJobs } from "./controllers/jobsController";
+import { approveJob, getAllJobs, rejectJob } from "./controllers/jobsController";
 import { getLatestUsers } from "./controllers/usersController";
 
 const adminRouter = express.Router();
@@ -118,12 +113,8 @@ adminRouter.post(
 adminRouter.put("/experience/:id", validateUpdateExperience, updateExperience);
 adminRouter.delete("/experience/:id", deleteExperience);
 
-// get all jobs route
-adminRouter.get(`/jobsPostedByEmployers`, getAllJobsPostedByEmployers);
 
-// approve job
-adminRouter.patch("/approveJob/:id", approveJob);
-adminRouter.post("/rejectJob", rejectJob);
+
 
 // EMPLOYERS
 adminRouter.get("/employers", getAllEmployers);
@@ -133,6 +124,8 @@ adminRouter.get("/candidates", adminAuthMiddleware, getAllCandidates);
 
 // JOBS
 adminRouter.get("/jobs", getAllJobs);
+adminRouter.patch("/approveJob/:id", approveJob);
+adminRouter.post("/rejectJob", rejectJob);
 
 // LATEST USERS
 adminRouter.get("/users", getLatestUsers);
