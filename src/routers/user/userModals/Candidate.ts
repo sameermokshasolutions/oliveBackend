@@ -194,4 +194,3 @@ export type CandidateDocument = mongoose.Document & {
 
 export type CandidateModel = mongoose.Model<CandidateDocument>;
 
-// Example usage

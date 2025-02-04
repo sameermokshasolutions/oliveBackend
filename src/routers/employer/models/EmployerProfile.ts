@@ -69,7 +69,7 @@ const EmployerProfileSchema: Schema = new Schema(
     bannerImage: { type: String },
     yearOfEstablishment: { type: String },
     companyVision: { type: String },
-    publicEmail: { type: String},
+    publicEmail: { type: String },
   },
   { timestamps: true }
 );
@@ -78,6 +78,8 @@ EmployerProfileSchema.virtual("isProfileComplete").get(function () {
   const mandatoryFields = [
     "companyName",
     "companySize",
+    "industryType",
+    "company_type",
     "headquartersAddress",
     "contactNumber",
     "aboutUs",

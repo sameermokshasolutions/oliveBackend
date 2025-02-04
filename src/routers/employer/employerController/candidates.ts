@@ -27,7 +27,6 @@ export const getAppliedCandidates: RequestHandler = async (
         data: null,
       });
     }
-    const jobData = await Job.findById(jobId).select("jobRole -_id");
 
     const result = await CandidateModel.find({
       userId: { $in: userIds },
@@ -35,44 +34,6 @@ export const getAppliedCandidates: RequestHandler = async (
       path: "userId",
       select: "firstName lastName -_id",
     });
-
-    const applicants: any = await CandidateModel.aggregate([
-      {
-        $match: {
-          userId: { $in: userIds },
-        },
-      },
-      {
-        $lookup: {
-          localField: "userId",
-          foreignField: "_id",
-          from: "users",
-          as: "candidateData",
-        },
-      },
-      {
-        $project: {
-          "candidateData.firstName": 1,
-          "candidateData.lastName": 1,
-          availability: 1,
-          awardsAndHonors: 1,
-          biography: 1,
-          gender: 1,
-          educationList: 1,
-          expectedSalary: 1,
-          experienceList: 1,
-          jobPreferences: 1,
-          jobRolePreferences: 1,
-          languages: 1,
-          maritalStatus: 1,
-          preferredJobLocation: 1,
-          relocationPreference: 1,
-          skills: 1,
-          socialList: 1,
-          profileUrl: 1,
-        },
-      },
-    ]);
 
     res.status(200).json({
       success: true,

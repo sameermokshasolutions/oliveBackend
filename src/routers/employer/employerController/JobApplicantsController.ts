@@ -75,10 +75,3 @@ const AppliedJob = mongoose.model('AppliedJob', appliedJobSchema);
 
 export default AppliedJob;
 
-// Example usage:
-// const newApplication = new AppliedJob({
-//   applicant: '60d5ecb54b24d01f8c0e7e1b',
-//   job: '60d5ecb54b24d01f8c0e7e1c',
-//   resumeUrl: 'https://example.com/resume.pdf'
-// });
-// await newApplication.save();

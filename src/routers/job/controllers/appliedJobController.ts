@@ -73,7 +73,7 @@ export const getAppliedJobs = async (
     });
 
     if (!AppliedjobsDocument) {
-      return next(createHttpError("You have not applied for any job yet"));
+      return next(createHttpError(404,"You have not applied for any job yet"));
     }
 
     const allAppliedJobByUser = await Job.find({

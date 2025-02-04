@@ -23,7 +23,7 @@ export const adminAuthMiddleware = (
     const userRole = decoded.userRole;
 
     if (userRole !== "admin") {
-      return next(createHttpError(401, "Unauthorized role access"));
+      return next(createHttpError(403, "Unauthorized role access"));
     }
 
     req.user = { id: decoded.id };
