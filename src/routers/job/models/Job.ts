@@ -58,6 +58,7 @@ const JobSchema: Schema = new Schema(
     jobCategory: { type: String, required: true },
     tags: { type: [String], required: true },
     jobRole: { type: String, required: true },
+    skills: { type: [String], required: true },
     jobApprovalStatus: {
       type: String,
       enum: ["pending", "approved", "reject"],
@@ -88,7 +89,6 @@ const JobSchema: Schema = new Schema(
     deadline: { type: Date, required: true },
     location: { type: String, required: true },
     requirements: { type: [String], required: true },
-    skills: { type: [String], required: true },
   },
   { timestamps: true }
 );

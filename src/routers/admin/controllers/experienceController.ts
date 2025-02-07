@@ -122,3 +122,29 @@ export const deleteExperience = async (
     next(error);
   }
 };
+
+
+/*
+const addExperienceLevel = async (name, sortOrder) => {
+  // Shift existing sortOrders if necessary
+  await ExperienceLevel.updateMany(
+    { sortOrder: { $gte: sortOrder } },
+    { $inc: { sortOrder: 1 } }
+  );
+
+  const newLevel = new ExperienceLevel({ name, sortOrder });
+  await newLevel.save();
+};
+
+
+const deleteExperienceLevel = async (id) => {
+  const level = await ExperienceLevel.findById(id);
+  await ExperienceLevel.deleteOne({ _id: id });
+
+  // Shift remaining sortOrders
+  await ExperienceLevel.updateMany(
+    { sortOrder: { $gt: level.sortOrder } },
+    { $inc: { sortOrder: -1 } }
+  );
+};
+*/

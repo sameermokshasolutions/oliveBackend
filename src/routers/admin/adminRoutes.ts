@@ -59,8 +59,13 @@ import {
 import { getAllEmployers } from "./controllers/employerController";
 import { getAllCandidates } from "./controllers/candidateController";
 import { adminAuthMiddleware } from "../../middlewares/adminAuthMiddleware";
-import { approveJob, getAllJobs, rejectJob } from "./controllers/jobsController";
+import {
+  approveJob,
+  getAllJobs,
+  rejectJob,
+} from "./controllers/jobsController";
 import { getLatestUsers } from "./controllers/usersController";
+import { dashboardSummary } from "./controllers/dashboardController";
 
 const adminRouter = express.Router();
 
@@ -113,9 +118,6 @@ adminRouter.post(
 adminRouter.put("/experience/:id", validateUpdateExperience, updateExperience);
 adminRouter.delete("/experience/:id", deleteExperience);
 
-
-
-
 // EMPLOYERS
 adminRouter.get("/employers", getAllEmployers);
 
@@ -129,4 +131,8 @@ adminRouter.post("/rejectJob", rejectJob);
 
 // LATEST USERS
 adminRouter.get("/users", getLatestUsers);
+
+// DASHBOARD SUMARY
+adminRouter.get("/dashboardSummary", dashboardSummary);
+
 export default adminRouter;

@@ -80,7 +80,7 @@ export const getAppliedJobs = async (
       _id: { $in: AppliedjobsDocument?.appliedJobs.map((job) => job.jobId) },
     }).populate({
       path: "company",
-      select: "companyName aboutUs",
+      select: "companyName aboutUs logoUrl",
     });
 
     const jobsWithDateOfApplication = allAppliedJobByUser.map((job) => {
