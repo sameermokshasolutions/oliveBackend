@@ -35,7 +35,7 @@ const jobSkillSchema = new mongoose.Schema({
   },
 });
 jobSkillSchema.index({ name: 1, role: 1 }, { unique: true });
-    
+
 const jobTagSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -53,3 +53,5 @@ const JobCategory = mongoose.model("JobCategory", jobCategorySchema);
 const JobRole = mongoose.model("JobRole", jobRoleSchema);
 const JobSkill = mongoose.model("JobSkill", jobSkillSchema);
 const JobTag = mongoose.model("JobTag", jobTagSchema);
+
+export { JobCategory, JobRole, JobSkill, JobTag };

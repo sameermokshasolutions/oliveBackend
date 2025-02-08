@@ -22,13 +22,11 @@ export const createJobRole = async (
 ) => {
   try {
     const newRole = await JobRole.create(req.body);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Job role created successfully",
-        data: newRole,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Job role created successfully",
+      data: newRole,
+    });
   } catch (error) {
     next(error);
   }
@@ -46,13 +44,11 @@ export const updateJobRole = async (
       { new: true }
     );
     if (!updatedRole) throw createHttpError(404, "Job role not found");
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Job role updated successfully",
-        data: updatedRole,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Job role updated successfully",
+      data: updatedRole,
+    });
   } catch (error) {
     next(error);
   }
