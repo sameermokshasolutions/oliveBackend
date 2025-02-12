@@ -6,6 +6,13 @@ const jobCategorySchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+
+  //company type
+  companyType: {
+    type: String,
+    enum: ["Pharma", "Laboratory", "Hospital"],
+    required: true
+  }
 });
 
 const jobRoleSchema = new mongoose.Schema({
