@@ -66,11 +66,12 @@ import {
 } from "./controllers/jobsController";
 import { getLatestUsers } from "./controllers/usersController";
 import { dashboardSummary } from "./controllers/dashboardController";
+import { authenticateToken } from "../../middlewares/authMiddleware";
 
 const adminRouter = express.Router();
 
 // Job Category routes
-adminRouter.get("/job-categories", getAllJobCategories);
+adminRouter.get("/job-categories",authenticateToken, getAllJobCategories);
 adminRouter.post(
   "/job-categories",
   validateCreateJobCategory,

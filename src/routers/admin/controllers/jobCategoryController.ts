@@ -1,17 +1,22 @@
 import JobCategory from "../models/JobCategory";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
-
+import EmployerProfile from "../../employer/models/EmployerProfile";
 export const getAllJobCategories = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
+
+    const userId = req.user?.id
+    // fetching company type from Employer Profile
+    const employerProfile = await EmployerProfile.find({userId}).select('company_type')
+    console.log(employerProfile)
     const categories = await JobCategory.find();
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, 'Something went wrong'));
   }
 };
 
