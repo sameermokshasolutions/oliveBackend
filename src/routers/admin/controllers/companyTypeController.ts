@@ -28,7 +28,7 @@ export const getCompanyTypeById = async (
   try {
     const companyType = await CompanyType.findById(req.params.id);
     if (!companyType) {
-      throw createHttpError(404, 'Company type not found');
+      next(createHttpError(404, 'Company type not found'));
     }
     
     res.status(200).json({
@@ -49,7 +49,7 @@ export const createCompanyType = async (
     const { name } = req.body;
     
     if (!name) {
-      throw createHttpError(400, 'Name is required');
+      next(createHttpError(400, 'Name is required'));
     }
     
     const companyType = await CompanyType.create({ name });
@@ -77,7 +77,7 @@ export const updateCompanyType = async (
     const { name } = req.body;
     
     if (!name) {
-      throw createHttpError(400, 'Name is required');
+      next(createHttpError(400, 'Name is required'));
     }
     
     const companyType = await CompanyType.findByIdAndUpdate(
@@ -87,7 +87,7 @@ export const updateCompanyType = async (
     );
     
     if (!companyType) {
-      throw createHttpError(404, 'Company type not found');
+      next(createHttpError(404, 'Company type not found'));
     }
     
     res.status(200).json({
@@ -113,7 +113,7 @@ export const deleteCompanyType = async (
     const companyType = await CompanyType.findByIdAndDelete(req.params.id);
     
     if (!companyType) {
-      throw createHttpError(404, 'Company type not found');
+      next(createHttpError(404, 'Company type not found'));
     }
     
     res.status(200).json({
