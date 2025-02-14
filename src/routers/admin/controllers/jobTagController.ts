@@ -10,7 +10,10 @@ export const getAllJobTags = async (
 ) => {
   try {
     const tags = await JobTag.find();
-    res.status(200).json({ success: true, data: tags });
+    res.status(200).json({ 
+      success: true,
+      message: 'Job tags fethced successfully',
+      data: tags });
   } catch (error) {
     next(error);
   }
@@ -34,7 +37,10 @@ export const getJobTagByRole = async (
       next(createHttpError(404, "No job skills found for this role"));
     }
 
-    res.status(200).json({ success: true, data: skills });
+    res.status(200).json({ 
+      success: true, 
+      message: 'Job tags by role fethced successfully',
+      data: skills });
   } catch (error) {
     next(error);
   }

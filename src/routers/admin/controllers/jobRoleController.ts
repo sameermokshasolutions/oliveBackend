@@ -10,7 +10,10 @@ export const getAllJobRoles = async (
 ) => {
   try {
     const roles = await JobRole.find();
-    res.status(200).json({ success: true, data: roles });
+    res.status(200).json({ 
+      success: true, 
+      message: 'Job roles fethced successfully',
+      data: roles });
   } catch (error) {
     next(error);
   }
@@ -34,7 +37,10 @@ export const getJobRolesByCategory = async (
       next(createHttpError(404, "No job roles found for this category"));
     }
 
-    res.status(200).json({ success: true, data: roles });
+    res.status(200).json({ 
+      success: true, 
+      message: 'Job roles by category fethced successfully',
+      data: roles });
   } catch (error) {
     next(error);
   }

@@ -13,6 +13,7 @@ export const getAllCompanyTypes = async (
     const companyTypes = await CompanyType.find();
     res.status(200).json({
       success: true,
+      message: 'Company type fetched successfully',
       data: companyTypes
     });
   } catch (error) {
@@ -33,6 +34,7 @@ export const getCompanyTypeById = async (
     
     res.status(200).json({
       success: true,
+      message: 'Company type by id fethed successfully',
       data: companyType
     });
   } catch (error) {
