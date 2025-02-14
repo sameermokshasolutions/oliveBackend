@@ -1,6 +1,7 @@
 import JobTag from "../models/JobTag";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
+import JobSkills from "../models/jobSkills";
 
 export const getAllJobTags = async (
   req: Request,
@@ -10,6 +11,30 @@ export const getAllJobTags = async (
   try {
     const tags = await JobTag.find();
     res.status(200).json({ success: true, data: tags });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getJobTagByRole = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      next(createHttpError(400, "Role ID is required"));
+    }
+
+    const skills = await JobSkills.find({ role: id });
+
+    if (!skills.length) {
+      next(createHttpError(404, "No job skills found for this role"));
+    }
+
+    res.status(200).json({ success: true, data: skills });
   } catch (error) {
     next(error);
   }

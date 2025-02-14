@@ -31,6 +31,7 @@ import {
   createJobTag,
   deleteJobTag,
   updateJobTag,
+  getJobTagByRole,
 } from "./controllers/jobTagController";
 import {
   createJobSkills,
@@ -101,6 +102,7 @@ adminRouter.delete("/company-type/:id", deleteCompanyType);
 
 // Job Tag routes
 adminRouter.get("/job-tags", getAllJobTags);
+adminRouter.get("/job-tags/:id", getJobTagByRole);
 adminRouter.post("/job-tags", validateCreateJobTag, createJobTag);
 adminRouter.put("/job-tags/:id", validateUpdateJobTag, updateJobTag);
 adminRouter.delete("/job-tags/:id", deleteJobTag);
