@@ -16,6 +16,7 @@ import {
   createJobCategory,
   deleteJobCategory,
   getAllJobCategories,
+  getJobCategoriesByCompanyType,
   updateJobCategory,
 } from "./controllers/jobCategoryController";
 import {
@@ -67,22 +68,34 @@ import {
 import { getLatestUsers } from "./controllers/usersController";
 import { dashboardSummary } from "./controllers/dashboardController";
 import { authenticateToken } from "../../middlewares/authMiddleware";
+import { createCompanyType, deleteCompanyType, getAllCompanyTypes, getCompanyTypeById, updateCompanyType } from "./controllers/companyTypeController";
 
 const adminRouter = express.Router();
 
 // Job Category routes
 adminRouter.get("/job-categories",authenticateToken, getAllJobCategories);
+adminRouter.get("/job-categories/:id",authenticateToken, getJobCategoriesByCompanyType);
 adminRouter.post(
   "/job-categories",
-  validateCreateJobCategory,
   createJobCategory
 );
 adminRouter.put(
   "/job-categories/:id",
-  validateUpdateJobCategory,
   updateJobCategory
 );
 adminRouter.delete("/job-categories/:id", deleteJobCategory);
+
+// Company type routes
+adminRouter.get("/company-type",authenticateToken, getAllCompanyTypes);
+adminRouter.post(
+  "/company-type",
+  createCompanyType
+);
+adminRouter.put(
+  "/company-type/:id",
+  updateCompanyType
+);
+adminRouter.delete("/company-type/:id", deleteCompanyType);
 
 // Job Tag routes
 adminRouter.get("/job-tags", getAllJobTags);
