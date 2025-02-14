@@ -23,6 +23,7 @@ import {
   createJobRole,
   deleteJobRole,
   getAllJobRoles,
+  getJobRolesByCategory,
   updateJobRole,
 } from "./controllers/jobRoleController";
 import {
@@ -111,6 +112,7 @@ adminRouter.delete("/job-skills/:id", deleteJobSkills);
 
 // Job Role routes
 adminRouter.get("/job-roles", getAllJobRoles);
+adminRouter.get("/job-roles/:id", getJobRolesByCategory);
 adminRouter.post("/job-roles", validateCreateJobRole, createJobRole);
 adminRouter.put("/job-roles/:id", validateUpdateJobRole, updateJobRole);
 adminRouter.delete("/job-roles/:id", deleteJobRole);

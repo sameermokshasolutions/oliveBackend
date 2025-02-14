@@ -1,6 +1,7 @@
 import JobRole from "../models/JobRole";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
+import JobCategory from "../models/JobCategory";
 
 export const getAllJobRoles = async (
   req: Request,
@@ -14,6 +15,31 @@ export const getAllJobRoles = async (
     next(error);
   }
 };
+
+export const getJobRolesByCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      next(createHttpError(400, "Category ID is required"));
+    }
+
+    const roles = await JobRole.find({ category: id });
+
+    if (!roles.length) {
+      next(createHttpError(404, "No job roles found for this category"));
+    }
+
+    res.status(200).json({ success: true, data: roles });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const createJobRole = async (
   req: Request,
