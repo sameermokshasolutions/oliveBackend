@@ -36,6 +36,7 @@ import {
   createJobSkills,
   deleteJobSkills,
   getAllJobSkills,
+  getJobSkillsByRole,
   updateJobSkills,
 } from "./controllers/jobSkillController";
 import {
@@ -106,6 +107,7 @@ adminRouter.delete("/job-tags/:id", deleteJobTag);
 
 // Job skills routes
 adminRouter.get("/job-skills", getAllJobSkills);
+adminRouter.get("/job-skills/:id", getJobSkillsByRole);
 adminRouter.post("/job-skills", validateCreateJobTag, createJobSkills);
 adminRouter.put("/job-skills/:id", validateUpdateJobTag, updateJobSkills);
 adminRouter.delete("/job-skills/:id", deleteJobSkills);

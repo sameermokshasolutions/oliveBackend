@@ -15,6 +15,30 @@ export const getAllJobSkills = async (
   }
 };
 
+export const getJobSkillsByRole = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      next(createHttpError(400, "Role ID is required"));
+    }
+
+    const skills = await JobSkills.find({ role: id });
+
+    if (!skills.length) {
+      next(createHttpError(404, "No job skills found for this role"));
+    }
+
+    res.status(200).json({ success: true, data: skills });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createJobSkills = async (
   req: Request,
   res: Response,
