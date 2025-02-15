@@ -9,12 +9,13 @@ export const getAllJobSkills = async (
 ) => {
   try {
     const skills = await JobSkills.find();
-    res.status(200).json({ 
-      success: true, 
-      message: 'Job skills fethced successfully',
-      data: skills });
+    res.status(200).json({
+      success: true,
+      message: "Job skills fethced successfully",
+      data: skills,
+    });
   } catch (error) {
-    next(error);
+    next(createHttpError(400, "Error fetching job skills"));
   }
 };
 
@@ -36,12 +37,13 @@ export const getJobSkillsByRole = async (
       next(createHttpError(404, "No job skills found for this role"));
     }
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
-      message: 'Job skills by role fethced successfully', 
-      data: skills });
+      message: "Job skills by role fethced successfully",
+      data: skills,
+    });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error fetching job skills"));
   }
 };
 
@@ -58,7 +60,7 @@ export const createJobSkills = async (
       data: newskills,
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error creating job skills"));
   }
 };
 
@@ -80,7 +82,7 @@ export const updateJobSkills = async (
       data: updatedskills,
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error updating job skills"));
   }
 };
 
@@ -96,6 +98,6 @@ export const deleteJobSkills = async (
       .status(200)
       .json({ success: true, message: "Job skills deleted successfully" });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error deleting job skills"));
   }
 };
