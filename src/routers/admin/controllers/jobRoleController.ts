@@ -9,7 +9,10 @@ export const getAllJobRoles = async (
   next: NextFunction
 ) => {
   try {
-    const roles = await JobRole.find();
+    const roles = await JobRole.find().populate({
+      path: "category",
+      select: "name"
+    });
     res.status(200).json({ 
       success: true, 
       message: 'Job roles fethced successfully',
