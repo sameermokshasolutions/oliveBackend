@@ -9,15 +9,17 @@ export const getAllJobCategories = async (
   next: NextFunction
 ) => {
   try {
-
     // const userId = req.user?.id
     // // fetching company type from Employer Profile
     // const employerProfile = await EmployerProfile.find({userId}).select('company_type')
     // console.log(employerProfile)
-    const categories = await JobCategory.find();
+    const categories = await JobCategory.find().populate({
+      path: "companyType",
+      select: "name",
+    });
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
-    next(createHttpError(500, 'Something went wrong'));
+    next(createHttpError(500, "Something went wrong"));
   }
 };
 
@@ -36,26 +38,24 @@ export const getJobCategoriesByCompanyType = async (
 
     // Fetch only categories where companyType array contains the requested company type ID
     const categories = await JobCategory.find({
-      companyType: id  // This will match if the companyTypeId exists in the companyType array
+      companyType: id, // This will match if the companyTypeId exists in the companyType array
     });
 
     if (!categories.length) {
       res.status(200).json({
         success: true,
         message: "No job categories found for this company type",
-        data: []
+        data: [],
       });
     }
 
     res.status(200).json({
       success: true,
-      data: categories
+      data: categories,
     });
-
   } catch (error) {
     next(createHttpError(500, "Error fetching job categories"));
   }
-
 };
 
 export const createJobCategory = async (
@@ -86,7 +86,6 @@ export const updateJobCategory = async (
   next: NextFunction
 ) => {
   try {
-
     const companyType = req.body;
     if (!companyType) {
       throw createHttpError(400, "Please provide company type");
