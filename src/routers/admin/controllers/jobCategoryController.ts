@@ -13,7 +13,12 @@ export const getAllJobCategories = async (
     // // fetching company type from Employer Profile
     // const employerProfile = await EmployerProfile.find({userId}).select('company_type')
     // console.log(employerProfile)
-    const categories = await JobCategory.find();
+    const categories = await JobCategory.find().populate(
+      {
+        path: "companyType",
+        select: "name"
+      }
+    );
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
     next(createHttpError(500, "Something went wrong"));
