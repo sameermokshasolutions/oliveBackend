@@ -8,7 +8,10 @@ export const getAllJobSkills = async (
   next: NextFunction
 ) => {
   try {
-    const skills = await JobSkills.find();
+    const skills = await JobSkills.find().populate({
+      path: "role",
+      select: "name",
+    });
     res.status(200).json({
       success: true,
       message: "Job skills fethced successfully",
