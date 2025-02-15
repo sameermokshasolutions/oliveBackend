@@ -23,6 +23,7 @@ import {
   createJobRole,
   deleteJobRole,
   getAllJobRoles,
+  getJobRolesByCategory,
   updateJobRole,
 } from "./controllers/jobRoleController";
 import {
@@ -30,11 +31,13 @@ import {
   createJobTag,
   deleteJobTag,
   updateJobTag,
+  getJobTagByRole,
 } from "./controllers/jobTagController";
 import {
   createJobSkills,
   deleteJobSkills,
   getAllJobSkills,
+  getJobSkillsByRole,
   updateJobSkills,
 } from "./controllers/jobSkillController";
 import {
@@ -99,18 +102,21 @@ adminRouter.delete("/company-type/:id", deleteCompanyType);
 
 // Job Tag routes
 adminRouter.get("/job-tags", getAllJobTags);
+adminRouter.get("/job-tags/:id", getJobTagByRole);
 adminRouter.post("/job-tags", validateCreateJobTag, createJobTag);
 adminRouter.put("/job-tags/:id", validateUpdateJobTag, updateJobTag);
 adminRouter.delete("/job-tags/:id", deleteJobTag);
 
 // Job skills routes
 adminRouter.get("/job-skills", getAllJobSkills);
+adminRouter.get("/job-skills/:id", getJobSkillsByRole);
 adminRouter.post("/job-skills", validateCreateJobTag, createJobSkills);
 adminRouter.put("/job-skills/:id", validateUpdateJobTag, updateJobSkills);
 adminRouter.delete("/job-skills/:id", deleteJobSkills);
 
 // Job Role routes
 adminRouter.get("/job-roles", getAllJobRoles);
+adminRouter.get("/job-roles/:id", getJobRolesByCategory);
 adminRouter.post("/job-roles", validateCreateJobRole, createJobRole);
 adminRouter.put("/job-roles/:id", validateUpdateJobRole, updateJobRole);
 adminRouter.delete("/job-roles/:id", deleteJobRole);
