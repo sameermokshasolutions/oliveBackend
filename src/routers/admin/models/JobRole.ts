@@ -19,7 +19,7 @@ const jobRoleSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "JobCategory",
-    required: true,
+    required: [true, "Job category is required"],
   },
 });
 
