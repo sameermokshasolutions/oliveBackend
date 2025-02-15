@@ -15,7 +15,7 @@ export const getAllJobRoles = async (
       message: 'Job roles fethced successfully',
       data: roles });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error while fetching Job Role"));
   }
 };
 
@@ -42,7 +42,7 @@ export const getJobRolesByCategory = async (
       message: 'Job roles by category fethced successfully',
       data: roles });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error while fetching Job Role by Category"));
   }
 };
 
@@ -60,7 +60,7 @@ export const createJobRole = async (
       data: newRole,
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error while creating Job Role"));
   }
 };
 
@@ -82,7 +82,7 @@ export const updateJobRole = async (
       data: updatedRole,
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error while updating Job Role"));
   }
 };
 
@@ -98,6 +98,6 @@ export const deleteJobRole = async (
       .status(200)
       .json({ success: true, message: "Job role deleted successfully" });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Error while deleting Job Role"));
   }
 };
