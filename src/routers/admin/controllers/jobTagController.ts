@@ -9,11 +9,15 @@ export const getAllJobTags = async (
   next: NextFunction
 ) => {
   try {
-    const tags = await JobTag.find();
-    res.status(200).json({ 
+    const tags = await JobTag.find().populate({
+      path: "role",
+      select: "name",
+    });
+    res.status(200).json({
       success: true,
-      message: 'Job tags fethced successfully',
-      data: tags });
+      message: "Job tags fethced successfully",
+      data: tags,
+    });
   } catch (error) {
     next(error);
   }
@@ -37,10 +41,11 @@ export const getJobTagByRole = async (
       next(createHttpError(404, "No job skills found for this role"));
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Job tags by role fethced successfully',
-      data: skills });
+    res.status(200).json({
+      success: true,
+      message: "Job tags by role fethced successfully",
+      data: skills,
+    });
   } catch (error) {
     next(error);
   }
@@ -53,13 +58,11 @@ export const createJobTag = async (
 ) => {
   try {
     const newTag = await JobTag.create(req.body);
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Job tag created successfully",
-        data: newTag,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Job tag created successfully",
+      data: newTag,
+    });
   } catch (error) {
     next(error);
   }
@@ -75,13 +78,11 @@ export const updateJobTag = async (
       new: true,
     });
     if (!updatedTag) throw createHttpError(404, "Job tag not found");
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Job tag updated successfully",
-        data: updatedTag,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Job tag updated successfully",
+      data: updatedTag,
+    });
   } catch (error) {
     next(error);
   }
