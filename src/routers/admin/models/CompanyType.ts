@@ -4,10 +4,13 @@ import mongoose from "mongoose";
 const companyTypeSchema = new mongoose.Schema({
   name: {
     type: String,
-    requird: true,
-    unique: true  
+    required: true,
+    unique: true,
   },
-  
-})
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+});
 const CompanyType = mongoose.model("CompanyType", companyTypeSchema)
 export default CompanyType;
