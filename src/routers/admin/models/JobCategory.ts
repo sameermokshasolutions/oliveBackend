@@ -17,23 +17,32 @@ import mongoose from "mongoose";
 // );
 
 // job category schema
-const jobCategorySchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
+
+const jobCategorySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    // Company type reference
+    companyType: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CompanyType",
+        required: true,
+      },
+    ],
+
+    // Soft delete field
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-
-  //company type
-  companyType: [  
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:"CompanyType",
-      required: true
-    }
-  ]
-});
-
+  { timestamps: true } // Automatically adds createdAt and updatedAt fields
+);
 
 const JobCategory = mongoose.model("JobCategory", jobCategorySchema);
 
