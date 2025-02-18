@@ -1,9 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import {
-  CompanyType,
-  IndustryType,
-  IndustrySector,
-} from "../types/employerTypes";
+import { IndustryType, IndustrySector } from "../types/employerTypes";
 
 export interface IEmployerProfile extends Document {
   userId: mongoose.Types.ObjectId;
@@ -13,7 +9,7 @@ export interface IEmployerProfile extends Document {
   headquartersAddress: string;
   contactNumber: string;
   aboutUs: string;
-  company_type: CompanyType;
+  companyType: mongoose.Types.ObjectId;
   industrySector: IndustrySector;
   location: string;
   websiteLink: string;
@@ -39,7 +35,7 @@ const EmployerProfileSchema: Schema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     companyName: { type: String, required: true },
-    companySize: { type: String, required: true },
+    companySize: { type: Number, required: true },
     industryType: {
       type: String,
       enum: Object.values(IndustryType),
@@ -48,9 +44,10 @@ const EmployerProfileSchema: Schema = new Schema(
     headquartersAddress: { type: String, required: true },
     contactNumber: { type: String, required: true },
     aboutUs: { type: String, required: true },
-    company_type: {
-      type: String,
-      enum: Object.values(CompanyType),
+    companyType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CompanyType",
+      require: true,
     },
     industrySector: {
       type: String,
@@ -67,7 +64,7 @@ const EmployerProfileSchema: Schema = new Schema(
     branding_opted: { type: Boolean, default: false },
     custom_job_post_templates_enabled: { type: Boolean, default: false },
     bannerImage: { type: String },
-    yearOfEstablishment: { type: String },
+    yearOfEstablishment: { type: Number },
     companyVision: { type: String },
     publicEmail: { type: String },
   },
@@ -111,3 +108,8 @@ export default mongoose.model<IEmployerProfile>(
   "EmployerProfile",
   EmployerProfileSchema
 );
+
+// company_type: {
+//   type: String,
+//   enum: Object.values(CompanyType),
+// },
