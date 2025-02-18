@@ -2,6 +2,13 @@ import JobCategory from "../models/JobCategory";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
 import EmployerProfile from "../../employer/models/EmployerProfile";
+import mongoose from "mongoose";
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 
 export const getAllJobCategories = async (
   req: any,
@@ -13,12 +20,10 @@ export const getAllJobCategories = async (
     // // fetching company type from Employer Profile
     // const employerProfile = await EmployerProfile.find({userId}).select('company_type')
     // console.log(employerProfile)
-    const categories = await JobCategory.find().populate(
-      {
-        path: "companyType",
-        select: "name"
-      }
-    );
+    const categories = await JobCategory.find().populate({
+      path: "companyType",
+      select: "name",
+    });
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
     next(createHttpError(500, "Something went wrong"));
@@ -27,21 +32,28 @@ export const getAllJobCategories = async (
 
 // Function to get job categories by company type
 export const getJobCategoriesByCompanyType = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params; // Get company type ID from params
+    const userId = req.user?.id;
 
-    if (!id) {
-      next(createHttpError(400, "Company type ID is required"));
+    if (!userId) {
+      next(createHttpError(400, "Unauthorized user"));
     }
 
-    // Fetch only categories where companyType array contains the requested company type ID
-    const categories = await JobCategory.find({
-      companyType: id, // This will match if the companyTypeId exists in the companyType array
-    });
+    const matchConditions: any = {};
+
+    const employerProfile = await EmployerProfile.findOne({ userId });
+
+    if (employerProfile && employerProfile.companyType) {
+      matchConditions.companyType = employerProfile.companyType;
+    }
+
+    console.log(employerProfile?.companyType);
+
+    const categories = await JobCategory.find(matchConditions);
 
     if (!categories.length) {
       res.status(200).json({
@@ -53,7 +65,7 @@ export const getJobCategoriesByCompanyType = async (
 
     res.status(200).json({
       success: true,
-      data: categories
+      data: categories,
     });
   } catch (error) {
     next(createHttpError(500, "Error fetching job categories"));

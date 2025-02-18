@@ -71,33 +71,32 @@ import {
 import { getLatestUsers } from "./controllers/usersController";
 import { dashboardSummary } from "./controllers/dashboardController";
 import { authenticateToken } from "../../middlewares/authMiddleware";
-import { createCompanyType, deleteCompanyType, getAllCompanyTypes, getCompanyTypeById, updateCompanyType } from "./controllers/companyTypeController";
+import {
+  createCompanyType,
+  deleteCompanyType,
+  getAllCompanyTypes,
+  getCompanyTypeById,
+  updateCompanyType,
+} from "./controllers/companyTypeController";
+import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
 
 const adminRouter = express.Router();
 
 // Job Category routes
-adminRouter.get("/job-categories",authenticateToken, getAllJobCategories);
-adminRouter.get("/job-categories/:id",authenticateToken, getJobCategoriesByCompanyType);
-adminRouter.post(
-  "/job-categories",
-  createJobCategory
+adminRouter.get("/job-categories", authenticateToken, getAllJobCategories);
+adminRouter.get(
+  "/jobCategoriesByCompanyType",
+  employerAuthMiddleware,
+  getJobCategoriesByCompanyType
 );
-adminRouter.put(
-  "/job-categories/:id",
-  updateJobCategory
-);
+adminRouter.post("/job-categories", createJobCategory);
+adminRouter.put("/job-categories/:id", updateJobCategory);
 adminRouter.delete("/job-categories/:id", deleteJobCategory);
 
 // Company type routes
-adminRouter.get("/company-type",authenticateToken, getAllCompanyTypes);
-adminRouter.post(
-  "/company-type",
-  createCompanyType
-);
-adminRouter.put(
-  "/company-type/:id",
-  updateCompanyType
-);
+adminRouter.get("/company-type", authenticateToken, getAllCompanyTypes);
+adminRouter.post("/company-type", createCompanyType);
+adminRouter.put("/company-type/:id", updateCompanyType);
 adminRouter.delete("/company-type/:id", deleteCompanyType);
 
 // Job Tag routes
