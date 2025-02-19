@@ -35,16 +35,16 @@ export const getJobTagByRole = async (
       next(createHttpError(400, "Role ID is required"));
     }
 
-    const skills = await JobSkills.find({ role: id });
+    const tags = await JobTag.find({ role: id });
 
-    if (!skills.length) {
-      next(createHttpError(404, "No job skills found for this role"));
+    if (!tags.length) {
+      next(createHttpError(404, "No job tags found for this role"));
     }
 
     res.status(200).json({
       success: true,
       message: "Job tags by role fethced successfully",
-      data: skills,
+      data: tags,
     });
   } catch (error) {
     next(error);
