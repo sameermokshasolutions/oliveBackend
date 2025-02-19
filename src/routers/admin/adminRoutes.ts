@@ -84,7 +84,8 @@ const adminRouter = express.Router();
 
 // Job Category routes
 adminRouter.get("/job-categories", authenticateToken, getAllJobCategories);
-adminRouter.get("/job-categories/:id",
+adminRouter.get(
+  "/jobCategoriesByCompanyType",
   employerAuthMiddleware,
   getJobCategoriesByCompanyType
 );
