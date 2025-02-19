@@ -53,7 +53,7 @@ export const createExperience = async (
     // Check if experience with same name already exists
     const existingName = await Experience.findOne({ name }).session(session);
     if (existingName) {
-      throw createHttpError(409, "Experience name already exists");
+      next(createHttpError(409, "Experience name already exists"));
     }
 
     // Get all experiences that need to be updated
@@ -91,7 +91,6 @@ export const createExperience = async (
     session.endSession();
   }
 };
-
 
 
 export const createExperienceInBulk = async (
@@ -138,26 +137,122 @@ export const createExperienceInBulk = async (
     next(error);
   }
 };
+// export const updateExperience = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const updatedExperience = await Experience.findByIdAndUpdate(
+//       req.params.id,
+//       req.body,
+//       { new: true }
+//     );
+//     if (!updatedExperience)
+//       throw createHttpError(404, "Experience level not found");
+//     res.status(200).json({
+//       success: true,
+//       message: "Experience level updated successfully",
+//       data: updatedExperience,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// export const deleteExperience = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const deletedExperience = await Experience.findByIdAndDelete(req.params.id);
+//     if (!deletedExperience)
+//       throw createHttpError(404, "Experience level not found");
+//     res.status(200).json({
+//       success: true,
+//       message: "Experience level deleted successfully",
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
 export const updateExperience = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const updatedExperience = await Experience.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedExperience)
+    const { id } = req.params;
+    const { name, sort } = req.body;
+
+    // Find the experience to update
+    const experienceToUpdate = await Experience.findById(id).session(session);
+    if (!experienceToUpdate) {
       throw createHttpError(404, "Experience level not found");
+    }
+
+    // If updating name, check if new name already exists
+    if (name && name !== experienceToUpdate.name) {
+      const existingName = await Experience.findOne({ name }).session(session);
+      if (existingName) {
+        throw createHttpError(409, "Experience name already exists");
+      }
+    }
+
+    // If sort number is being updated
+    if (sort && sort !== experienceToUpdate.sort) {
+      // Get all experiences that need to be updated
+      if (sort > experienceToUpdate.sort) {
+        // Moving to a higher sort number
+        // Decrease sort numbers for experiences between old and new position
+        await Experience.updateMany(
+          {
+            _id: { $ne: id },
+            sort: { $gt: experienceToUpdate.sort, $lte: sort }
+          },
+          { $inc: { sort: -1 } },
+          { session }
+        );
+      } else {
+        // Moving to a lower sort number
+        // Increase sort numbers for experiences between new and old position
+        await Experience.updateMany(
+          {
+            _id: { $ne: id },
+            sort: { $gte: sort, $lt: experienceToUpdate.sort }
+          },
+          { $inc: { sort: 1 } },
+          { session }
+        );
+      }
+    }
+
+    // Update the experience
+    const updatedExperience = await Experience.findByIdAndUpdate(
+      id,
+      { name, sort },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+
     res.status(200).json({
       success: true,
       message: "Experience level updated successfully",
       data: updatedExperience,
     });
+
   } catch (error) {
+    await session.abortTransaction();
     next(error);
+  } finally {
+    session.endSession();
   }
 };
 
@@ -166,16 +261,40 @@ export const deleteExperience = async (
   res: Response,
   next: NextFunction
 ) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const deletedExperience = await Experience.findByIdAndDelete(req.params.id);
-    if (!deletedExperience)
+    const { id } = req.params;
+
+    // Find the experience to delete
+    const experienceToDelete = await Experience.findById(id).session(session);
+    if (!experienceToDelete) {
       throw createHttpError(404, "Experience level not found");
+    }
+
+    // Delete the experience
+    await Experience.findByIdAndDelete(id, { session });
+
+    // Update sort numbers for remaining experiences
+    await Experience.updateMany(
+      { sort: { $gt: experienceToDelete.sort } },
+      { $inc: { sort: -1 } },
+      { session }
+    );
+
+    await session.commitTransaction();
+
     res.status(200).json({
       success: true,
       message: "Experience level deleted successfully",
     });
+
   } catch (error) {
+    await session.abortTransaction();
     next(error);
+  } finally {
+    session.endSession();
   }
 };
 
