@@ -319,7 +319,6 @@
 //   );
 // };
 // */
-
 import Experience from "../models/Experience";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
@@ -338,7 +337,7 @@ export const getAllExperience = async (
       data: experiences,
     });
   } catch (error) {
-    next(error);
+    return next(createHttpError(500, "Failed to fetch experiences"));
   }
 };
 
@@ -394,7 +393,7 @@ export const createExperience = async (
     });
   } catch (error) {
     await session.abortTransaction();
-    next(error);
+    return next(createHttpError(500, "Failed to create experience"));
   } finally {
     session.endSession();
   }
@@ -412,7 +411,7 @@ export const createExperienceInBulk = async (
   try {
     const { start, end } = req.body;
     if (start % 2 !== 0 || end % 2 !== 0) {
-      next(createHttpError(400, "Start and end must be even numbers"));
+      return next(createHttpError(400, "Start and end must be even numbers"));
     }
 
     const existingExperiences = await Experience.find()
@@ -427,7 +426,7 @@ export const createExperienceInBulk = async (
 
       const existingName = await Experience.findOne({ name }).session(session);
       if (existingName) {
-        next(
+        return next(
           createHttpError(409, `Experience with name "${name}" already exists`)
         );
       }
@@ -449,7 +448,7 @@ export const createExperienceInBulk = async (
     });
   } catch (error) {
     await session.abortTransaction();
-    next(error);
+    return next(createHttpError(500, "Failed to create bulk experiences"));
   } finally {
     session.endSession();
   }
@@ -524,7 +523,7 @@ export const updateExperience = async (
     });
   } catch (error) {
     await session.abortTransaction();
-    next(error);
+    return next(createHttpError(500, "Failed to update experience"));
   } finally {
     session.endSession();
   }
@@ -563,7 +562,7 @@ export const deleteExperience = async (
     });
   } catch (error) {
     await session.abortTransaction();
-    next(error);
+    return next(createHttpError(500, "Failed to delete experience"));
   } finally {
     session.endSession();
   }
