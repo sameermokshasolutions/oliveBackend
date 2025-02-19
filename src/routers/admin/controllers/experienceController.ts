@@ -357,28 +357,26 @@ export const createExperience = async (
     // Check if name exists
     const existingName = await Experience.findOne({ name }).session(session);
     if (existingName) {
-      next(createHttpError(409, "Experience name already exists"));
+      return next(createHttpError(409, "Experience name already exists"));
     }
 
-    // Get all experiences
+    // Get all experiences with a lock for update
     const experiences = await Experience.find()
       .sort({ sort: 1 })
       .session(session);
 
     // Find the appropriate position for the new sort number
     const targetSort =
-      parseInt(sort) > experiences.length + 1 ? experiences.length + 1 : parseInt(sort);
+      parseInt(sort) > experiences.length + 1
+        ? experiences.length + 1
+        : parseInt(sort);
 
-    // Update sort numbers for existing experiences
-    for (const exp of experiences) {
-      if (exp.sort >= targetSort) {
-        await Experience.findByIdAndUpdate(
-          exp._id,
-          { $inc: { sort: 1 } },
-          { session }
-        );
-      }
-    }
+    // Instead of updating each document individually, use updateMany with a filter
+    await Experience.updateMany(
+      { sort: { $gte: targetSort } },
+      { $inc: { sort: 1 } },
+      { session }
+    );
 
     // Create new experience
     const newExperience = new Experience({
