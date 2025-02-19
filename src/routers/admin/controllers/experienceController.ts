@@ -11,7 +11,7 @@ export const getAllExperience = async (
     const sortField = "name";
     const sortOrder = 1;
 
-    const experience = await Experience.find().sort({ [sortField]: sortOrder });
+    const experience = await Experience.find().sort({ sort: sortOrder });
     res.status(200).json({ success: true, data: experience });
   } catch (error) {
     next(error);
@@ -122,7 +122,6 @@ export const deleteExperience = async (
     next(error);
   }
 };
-
 
 /*
 const addExperienceLevel = async (name, sortOrder) => {
