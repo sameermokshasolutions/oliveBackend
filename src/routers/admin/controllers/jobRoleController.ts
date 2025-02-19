@@ -139,11 +139,11 @@ export const getJobRolesByCategory = async (
 ) => {
   try {
     const { id } = req.params;
-    if (!id) throw createHttpError(400, "Category ID is required");
+    if (!id) next(createHttpError(400, "Category ID is required"));
 
     const roles = await JobRole.find({ category: id, isDeleted: false });
 
-    if (!roles.length) throw createHttpError(404, "No job roles found for this category");
+    if (!roles.length) next(createHttpError(404, "No job roles found for this category"));
 
     res.status(200).json({
       success: true,
@@ -186,7 +186,7 @@ export const updateJobRole = async (
       { new: true }
     );
 
-    if (!updatedRole) throw createHttpError(404, "Job role not found");
+    if (!updatedRole) next(createHttpError(404, "Job role not found"));
 
     res.status(200).json({
       success: true,
@@ -211,7 +211,7 @@ export const deleteJobRole = async (
       { new: true }
     );
 
-    if (!deletedRole) throw createHttpError(404, "Job role not found");
+    if (!deletedRole) next(createHttpError(404, "Job role not found"));
 
     res.status(200).json({
       success: true,
@@ -235,7 +235,7 @@ export const restoreJobRole = async (
       { new: true }
     );
 
-    if (!restoredRole) throw createHttpError(404, "Job role not found or not deleted");
+    if (!restoredRole) next(createHttpError(404, "Job role not found or not deleted"));
 
     res.status(200).json({
       success: true,

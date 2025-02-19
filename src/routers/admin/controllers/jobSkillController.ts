@@ -78,7 +78,7 @@ export const updateJobSkills = async (
       req.body,
       { new: true }
     );
-    if (!updatedskills) throw createHttpError(404, "Job skills not found");
+    if (!updatedskills) next(createHttpError(404, "Job skills not found"));
     res.status(200).json({
       success: true,
       message: "Job skills updated successfully",
@@ -96,7 +96,7 @@ export const deleteJobSkills = async (
 ) => {
   try {
     const deletedskills = await JobSkills.findByIdAndDelete(req.params.id);
-    if (!deletedskills) throw createHttpError(404, "Job skills not found");
+    if (!deletedskills) next(createHttpError(404, "Job skills not found"));
     res
       .status(200)
       .json({ success: true, message: "Job skills deleted successfully" });

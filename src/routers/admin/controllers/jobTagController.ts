@@ -77,7 +77,7 @@ export const updateJobTag = async (
     const updatedTag = await JobTag.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!updatedTag) throw createHttpError(404, "Job tag not found");
+    if (!updatedTag) next(createHttpError(404, "Job tag not found"));
     res.status(200).json({
       success: true,
       message: "Job tag updated successfully",
@@ -95,7 +95,7 @@ export const deleteJobTag = async (
 ) => {
   try {
     const deletedTag = await JobTag.findByIdAndDelete(req.params.id);
-    if (!deletedTag) throw createHttpError(404, "Job tag not found");
+    if (!deletedTag) next(createHttpError(404, "Job tag not found"));
     res
       .status(200)
       .json({ success: true, message: "Job tag deleted successfully" });

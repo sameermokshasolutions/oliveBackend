@@ -241,7 +241,7 @@ export const createJobCategory = async (
   try {
     const { name, companyType } = req.body;
     if (!name || !companyType) {
-      throw createHttpError(400, "Please provide name and company type");
+      next(createHttpError(400, "Please provide name and company type"));
     }
 
     const newCategory = await JobCategory.create({ name, companyType });
@@ -263,7 +263,7 @@ export const updateJobCategory = async (
   try {
     const { name, companyType } = req.body;
     if (!name || !companyType) {
-      throw createHttpError(400, "Please provide name and company type");
+        next(createHttpError(400, "Please provide name and company type"));
     }
 
     const updatedCategory = await JobCategory.findByIdAndUpdate(
@@ -272,7 +272,7 @@ export const updateJobCategory = async (
       { new: true }
     );
 
-    if (!updatedCategory) throw createHttpError(404, "Job category not found");
+    if (!updatedCategory) next(createHttpError(404, "Job category not found"));
     res.status(200).json({
       success: true,
       message: "Job category updated successfully",
@@ -295,7 +295,7 @@ export const deleteJobCategory = async (
       { new: true }
     );
 
-    if (!deletedCategory) throw createHttpError(404, "Job category not found");
+    if (!deletedCategory) next(createHttpError(404, "Job category not found"));
     res.status(200).json({
       success: true,
       message: "Job category soft deleted successfully",
