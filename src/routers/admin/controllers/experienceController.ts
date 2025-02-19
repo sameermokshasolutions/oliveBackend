@@ -8,7 +8,6 @@ export const getAllExperience = async (
   next: NextFunction
 ) => {
   try {
-    const sortField = "name";
     const sortOrder = 1;
 
     const experience = await Experience.find().sort({ sort: sortOrder });
