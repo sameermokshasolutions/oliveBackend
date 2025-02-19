@@ -77,7 +77,7 @@
 //     await newExperience.save({ session });
 
 //     await session.commitTransaction();
-    
+
 //     res.status(201).json({
 //       success: true,
 //       message: "Experience level created successfully",
@@ -91,7 +91,6 @@
 //     session.endSession();
 //   }
 // };
-
 
 // export const createExperienceInBulk = async (
 //   req: Request,
@@ -177,7 +176,6 @@
 // //     next(error);
 // //   }
 // // };
-
 
 // export const updateExperience = async (
 //   req: Request,
@@ -310,7 +308,6 @@
 //   await newLevel.save();
 // };
 
-
 // const deleteExperienceLevel = async (id) => {
 //   const level = await ExperienceLevel.findById(id);
 //   await ExperienceLevel.deleteOne({ _id: id });
@@ -327,7 +324,6 @@ import Experience from "../models/Experience";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-
 
 // Get all experiences
 export const getAllExperience = async (
@@ -365,11 +361,14 @@ export const createExperience = async (
     }
 
     // Get all experiences
-    const experiences = await Experience.find().sort({ sort: 1 }).session(session);
-    
+    const experiences = await Experience.find()
+      .sort({ sort: 1 })
+      .session(session);
+
     // Find the appropriate position for the new sort number
-    const targetSort = parseInt(sort) || experiences.length + 1;
-    
+    const targetSort =
+      parseInt(sort) > experiences.length + 1 ? experiences.length + 1 : parseInt(sort);
+
     // Update sort numbers for existing experiences
     for (const exp of experiences) {
       if (exp.sort >= targetSort) {
@@ -395,7 +394,6 @@ export const createExperience = async (
       message: "Experience level created successfully",
       data: newExperience,
     });
-
   } catch (error) {
     await session.abortTransaction();
     next(error);
@@ -422,24 +420,23 @@ export const createExperienceInBulk = async (
     const existingExperiences = await Experience.find()
       .sort({ sort: 1 })
       .session(session);
-    
+
     const experienceArray = [];
     let nextSort = existingExperiences.length + 1;
 
     for (let i = start; i < end; i += 2) {
       const name = `${i} to ${i + 2} years`;
-      
+
       const existingName = await Experience.findOne({ name }).session(session);
       if (existingName) {
-        next(createHttpError(
-          409,
-          `Experience with name "${name}" already exists`
-        ));
+        next(
+          createHttpError(409, `Experience with name "${name}" already exists`)
+        );
       }
 
       experienceArray.push({
         name,
-        sort: nextSort++
+        sort: nextSort++,
       });
     }
 
@@ -452,7 +449,6 @@ export const createExperienceInBulk = async (
       message: "Experience levels created successfully",
       data,
     });
-
   } catch (error) {
     await session.abortTransaction();
     next(error);
@@ -488,18 +484,28 @@ export const updateExperience = async (
 
     if (sort && sort !== experienceToUpdate.sort) {
       const newSort = parseInt(sort);
-      const experiences = await Experience.find().sort({ sort: 1 }).session(session);
+      const experiences = await Experience.find()
+        .sort({ sort: 1 })
+        .session(session);
 
       if (newSort > experienceToUpdate.sort) {
         for (const exp of experiences) {
           if (exp.sort > experienceToUpdate.sort && exp.sort <= newSort) {
-            await Experience.findByIdAndUpdate(exp._id, { $inc: { sort: -1 } }, { session });
+            await Experience.findByIdAndUpdate(
+              exp._id,
+              { $inc: { sort: -1 } },
+              { session }
+            );
           }
         }
       } else {
         for (const exp of experiences) {
           if (exp.sort >= newSort && exp.sort < experienceToUpdate.sort) {
-            await Experience.findByIdAndUpdate(exp._id, { $inc: { sort: 1 } }, { session });
+            await Experience.findByIdAndUpdate(
+              exp._id,
+              { $inc: { sort: 1 } },
+              { session }
+            );
           }
         }
       }
@@ -518,7 +524,6 @@ export const updateExperience = async (
       message: "Experience level updated successfully",
       data: updatedExperience,
     });
-
   } catch (error) {
     await session.abortTransaction();
     next(error);
@@ -558,7 +563,6 @@ export const deleteExperience = async (
       success: true,
       message: "Experience level deleted successfully",
     });
-
   } catch (error) {
     await session.abortTransaction();
     next(error);
