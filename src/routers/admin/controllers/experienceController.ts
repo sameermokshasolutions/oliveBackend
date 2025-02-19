@@ -1,6 +1,7 @@
 import Experience from "../models/Experience";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 
 export const getAllExperience = async (
   req: Request,
@@ -17,26 +18,82 @@ export const getAllExperience = async (
   }
 };
 
+// export const createExperience = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const existingSort = await Experience.findOne({ sort: req.body.sort });
+//     if (existingSort) {
+//       throw createHttpError(409, "Sort already added");
+//     }
+//     const newExperience = await Experience.create(req.body);
+//     res.status(201).json({
+//       success: true,
+//       message: "Experience level created successfully",
+//       data: newExperience,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 export const createExperience = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const existingSort = await Experience.findOne({ sort: req.body.sort });
-    if (existingSort) {
-      throw createHttpError(409, "Sort already added");
+    const { name, sort } = req.body;
+
+    // Check if experience with same name already exists
+    const existingName = await Experience.findOne({ name }).session(session);
+    if (existingName) {
+      throw createHttpError(409, "Experience name already exists");
     }
-    const newExperience = await Experience.create(req.body);
+
+    // Get all experiences that need to be updated
+    const experiencesToUpdate = await Experience.find(
+      { sort: { $gte: sort } },
+      null,
+      { session }
+    ).sort({ sort: -1 }); // Sort in descending order
+
+    // Update sort numbers from highest to lowest to avoid conflicts
+    for (const exp of experiencesToUpdate) {
+      await Experience.findByIdAndUpdate(
+        exp._id,
+        { sort: exp.sort + 1 },
+        { session, new: true }
+      );
+    }
+
+    // Create new experience
+    const newExperience = new Experience({ name, sort });
+    await newExperience.save({ session });
+
+    await session.commitTransaction();
+    
     res.status(201).json({
       success: true,
       message: "Experience level created successfully",
       data: newExperience,
     });
+
   } catch (error) {
+    await session.abortTransaction();
     next(error);
+  } finally {
+    session.endSession();
   }
 };
+
+
+
 export const createExperienceInBulk = async (
   req: Request,
   res: Response,
@@ -46,7 +103,7 @@ export const createExperienceInBulk = async (
     const { start, end } = req.body;
 
     if (start % 2 !== 0 || end % 2 !== 0) {
-      throw createHttpError(400, "Start and end must be even numbers");
+      next(createHttpError(400, "Start and end must be even numbers"));
     }
 
     const lastExperience = await Experience.findOne().sort({ sort: -1 });
