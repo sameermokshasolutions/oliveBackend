@@ -11,17 +11,24 @@ import mongoose from "mongoose";
 //   { timestamps: true }
 // );
 
-const jobRoleSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+const jobRoleSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "JobCategory",
+      required: [true, "Job category is required"],
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false, // Soft delete flag
+    },
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "JobCategory",
-    required: [true, "Job category is required"],
-  },
-});
+  { timestamps: true }
+);
 
 // Create a compound unique index :: Ensures that the same job role name cannot be repeated within the same category.
 jobRoleSchema.index({ name: 1, category: 1 }, { unique: true });
