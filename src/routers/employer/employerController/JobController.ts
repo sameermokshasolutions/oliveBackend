@@ -7,7 +7,6 @@ import createHttpError from "http-errors";
 import CandidateModel, {
   CandidateSearchFilters,
 } from "../../user/userModals/Candidate";
-// import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
 export const createJob: RequestHandler = async (req: any, res, next) => {
   const userId = req.user?.id;
