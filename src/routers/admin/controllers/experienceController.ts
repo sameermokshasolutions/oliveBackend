@@ -467,50 +467,85 @@ export const updateExperience = async (
     const { id } = req.params;
     const { name, sort } = req.body;
 
+    // Find experience to update while validating it exists
     const experienceToUpdate = await Experience.findById(id).session(session);
     if (!experienceToUpdate) {
       return next(createHttpError(404, "Experience level not found"));
     }
 
+    // Create update object with only valid changes
+    const updateData: any = {};
+
+    // Handle name update with validation
     if (name && name !== experienceToUpdate.name) {
       const existingName = await Experience.findOne({ name }).session(session);
       if (existingName) {
         return next(createHttpError(409, "Experience name already exists"));
       }
+      updateData.name = name;
     }
 
-    if (sort && sort !== experienceToUpdate.sort) {
+    // Handle sort update with bulk operations
+    if (sort !== undefined && sort !== experienceToUpdate.sort) {
       const newSort = parseInt(sort);
-      const experiences = await Experience.find()
-        .sort({ sort: 1 })
+
+      // Validate sort value
+      if (isNaN(newSort) || newSort < 1) {
+        return next(
+          createHttpError(400, "Sort value must be a positive number")
+        );
+      }
+
+      // Get max sort value to prevent out-of-bounds sorting
+      const maxSortDoc = await Experience.findOne({})
+        .sort({ sort: -1 })
+        .limit(1)
+        .select("sort")
         .session(session);
 
-      if (newSort > experienceToUpdate.sort) {
-        for (const exp of experiences) {
-          if (exp.sort > experienceToUpdate.sort && exp.sort <= newSort) {
-            await Experience.findByIdAndUpdate(
-              exp._id,
-              { $inc: { sort: -1 } },
-              { session }
-            );
-          }
-        }
-      } else {
-        for (const exp of experiences) {
-          if (exp.sort >= newSort && exp.sort < experienceToUpdate.sort) {
-            await Experience.findByIdAndUpdate(
-              exp._id,
-              { $inc: { sort: 1 } },
-              { session }
-            );
-          }
-        }
+      const maxSort = maxSortDoc ? maxSortDoc.sort : 0;
+      const boundedNewSort = Math.min(newSort, maxSort);
+
+      // Use updateMany for more efficient bulk operations
+      if (boundedNewSort > experienceToUpdate.sort) {
+        // Moving to a later position - shift items in between down
+        await Experience.updateMany(
+          {
+            sort: { $gt: experienceToUpdate.sort, $lte: boundedNewSort },
+            _id: { $ne: id },
+          },
+          { $inc: { sort: -1 } },
+          { session }
+        );
+      } else if (boundedNewSort < experienceToUpdate.sort) {
+        // Moving to an earlier position - shift items in between up
+        await Experience.updateMany(
+          {
+            sort: { $gte: boundedNewSort, $lt: experienceToUpdate.sort },
+            _id: { $ne: id },
+          },
+          { $inc: { sort: 1 } },
+          { session }
+        );
       }
+
+      updateData.sort = boundedNewSort;
     }
 
+    // Skip update if no changes
+    if (Object.keys(updateData).length === 0) {
+      await session.commitTransaction();
+      res.status(200).json({
+        success: true,
+        message: "No changes to update",
+        data: experienceToUpdate,
+      });
+    }
+
+    // Update experience with validated changes
     const updatedExperience = await Experience.findByIdAndUpdate(
       id,
-      { name, sort },
+      updateData,
       { new: true, session }
     );
 
@@ -523,7 +558,12 @@ export const updateExperience = async (
     });
   } catch (error) {
     await session.abortTransaction();
-    return next(createHttpError(500, "Failed to update experience"));
+
+    // Enhanced error logging and handling
+    console.error("Update experience error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to update experience";
+    return next(createHttpError(500, errorMessage));
   } finally {
     session.endSession();
   }
