@@ -1,14 +1,16 @@
-import { NextFunction, RequestHandler, Response, Request } from "express";
+import { NextFunction, RequestHandler, Response } from "express";
 import Job, { IJob } from "../../job/models/Job";
 import EmployerProfile from "../models/EmployerProfile";
 import mongoose from "mongoose";
 import { validateJobInput } from "../../../utils/validateJobInputs";
 import createHttpError from "http-errors";
-import CandidateModel, {
-  CandidateSearchFilters,
-} from "../../user/userModals/Candidate";
+import CandidateModel from "../../user/userModals/Candidate";
 
-export const createJob: RequestHandler = async (req: any, res, next) => {
+export const createJob: RequestHandler = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const userId = req.user?.id;
 
   if (!userId) {
@@ -45,11 +47,16 @@ export const createJob: RequestHandler = async (req: any, res, next) => {
 };
 
 export const getAllJobs = async (
-  req: any,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   const userId = req.user?.id;
+  const { page = "1", limit = "5" } = req.query;
+
+  const pageNumber = Number(page) > 0 ? Number(page) : 1;
+  const limitNumber = Number(limit) > 0 ? Number(limit) : 10;
+  const skip = (pageNumber - 1) * limitNumber;
 
   if (!userId) {
     return next(createHttpError(401, "Unauthorized: Missing user ID"));
@@ -62,56 +69,55 @@ export const getAllJobs = async (
       return next(createHttpError(403, "Complete your profile"));
     }
 
-    // Fetch all jobs associated with the employer
-    const jobs = await Job.find({ company: employerProfile._id });
+    const matchConditions: any = { company: employerProfile._id };
 
-    if (jobs.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "No jobs found for this employer",
-        data: [],
-      });
-    }
+    const totalJobs = await Job.countDocuments(matchConditions);
 
     const appliedUsersByJobId = await Job.aggregate([
       {
-        $match: {
-          company: employerProfile._id,
-        },
+        $match: matchConditions,
       },
       {
         $lookup: {
           from: "appliedjobsbycandidatemodels",
           localField: "_id",
-          foreignField: "appliedJobs.jobId",
+          foreignField: "jobId",
           as: "appliedCandidates",
         },
       },
       {
         $addFields: {
-          appliedCandidates: {
-            $map: {
-              input: "$appliedCandidates",
-              as: "candidate",
-              in: "$$candidate.userId",
-            },
-          },
+          appliedCandidates: { $size: "$appliedCandidates" },
         },
       },
+      {
+        $project: {
+          _id: 1,
+          jobTitle: 1,
+          jobApprovalStatus: 1,
+          jobType: 1,
+          totalVacancies: 1,
+          deadline: 1,
+          appliedCandidates: 1,
+          numberOfCandidates: 1,
+        },
+      },
+      { $skip: skip },
+      { $limit: limitNumber },
     ]);
-
-    if (appliedUsersByJobId.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "No jobs found",
-        data: [],
-      });
-    }
 
     res.status(200).json({
       success: true,
       message: "Jobs fetched successfully",
-      data: appliedUsersByJobId,
+      data: {
+        appliedUsersByJobId: appliedUsersByJobId,
+        pagination: {
+          total: totalJobs,
+          page: pageNumber,
+          limit: limitNumber,
+          pages: Math.ceil(totalJobs / limitNumber),
+        },
+      },
     });
   } catch (error) {
     return next(createHttpError(500, "An error occurred while fetching jobs"));
