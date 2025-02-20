@@ -1,3 +1,292 @@
+import Experience from "../models/Experience";
+import createHttpError from "http-errors";
+import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
+
+// Get all experiences
+export const getAllExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const experiences = await Experience.find().sort({ sort: 1 });
+    res.status(200).json({
+      success: true,
+      data: experiences,
+    });
+  } catch (error) {
+    return next(createHttpError(500, "Failed to fetch experiences"));
+  }
+};
+
+// Create single experience
+export const createExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { name, sort } = req.body;
+
+    // Check if name exists
+    const existingName = await Experience.findOne({ name }).session(session);
+    if (existingName) {
+      return next(createHttpError(409, "Experience name already exists"));
+    }
+
+    // Get all experiences with a lock for update
+    const experiences = await Experience.find()
+      .sort({ sort: 1 })
+      .session(session);
+
+    // Find the appropriate position for the new sort number
+    const targetSort =
+      parseInt(sort) > experiences.length + 1
+        ? experiences.length + 1
+        : parseInt(sort);
+
+    // Instead of updating each document individually, use updateMany with a filter
+    await Experience.updateMany(
+      { sort: { $gte: targetSort } },
+      { $inc: { sort: 1 } },
+      { session }
+    );
+
+    // Create new experience
+    const newExperience = new Experience({
+      name,
+      sort: targetSort,
+    });
+    await newExperience.save({ session });
+
+    await session.commitTransaction();
+
+    res.status(201).json({
+      success: true,
+      message: "Experience level created successfully",
+      data: newExperience,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    return next(createHttpError(500, "Failed to create experience"));
+  } finally {
+    session.endSession();
+  }
+};
+
+// Create bulk experiences
+export const createExperienceInBulk = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { start, end } = req.body;
+    if (start % 2 !== 0 || end % 2 !== 0) {
+      return next(createHttpError(400, "Start and end must be even numbers"));
+    }
+
+    const existingExperiences = await Experience.find()
+      .sort({ sort: 1 })
+      .session(session);
+
+    const experienceArray = [];
+    let nextSort = existingExperiences.length + 1;
+
+    for (let i = start; i < end; i += 2) {
+      const name = `${i} to ${i + 2} years`;
+
+      const existingName = await Experience.findOne({ name }).session(session);
+      if (existingName) {
+        return next(
+          createHttpError(409, `Experience with name "${name}" already exists`)
+        );
+      }
+
+      experienceArray.push({
+        name,
+        sort: nextSort++,
+      });
+    }
+
+    const data = await Experience.insertMany(experienceArray, { session });
+
+    await session.commitTransaction();
+
+    res.status(201).json({
+      success: true,
+      message: "Experience levels created successfully",
+      data,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    return next(createHttpError(500, "Failed to create bulk experiences"));
+  } finally {
+    session.endSession();
+  }
+};
+
+// Update experience
+export const updateExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { id } = req.params;
+    const { name, sort } = req.body;
+
+    // Find experience to update while validating it exists
+    const experienceToUpdate = await Experience.findById(id).session(session);
+    if (!experienceToUpdate) {
+      return next(createHttpError(404, "Experience level not found"));
+    }
+
+    // Create update object with only valid changes
+    const updateData: any = {};
+
+    // Handle name update with validation
+    if (name && name !== experienceToUpdate.name) {
+      const existingName = await Experience.findOne({ name }).session(session);
+      if (existingName) {
+        return next(createHttpError(409, "Experience name already exists"));
+      }
+      updateData.name = name;
+    }
+
+    // Handle sort update with bulk operations
+    if (sort !== undefined && sort !== experienceToUpdate.sort) {
+      const newSort = parseInt(sort);
+
+      // Validate sort value
+      if (isNaN(newSort) || newSort < 1) {
+        return next(
+          createHttpError(400, "Sort value must be a positive number")
+        );
+      }
+
+      // Get max sort value to prevent out-of-bounds sorting
+      const maxSortDoc = await Experience.findOne({})
+        .sort({ sort: -1 })
+        .limit(1)
+        .select("sort")
+        .session(session);
+
+      const maxSort = maxSortDoc ? maxSortDoc.sort : 0;
+      const boundedNewSort = Math.min(newSort, maxSort);
+
+      // Use updateMany for more efficient bulk operations
+      if (boundedNewSort > experienceToUpdate.sort) {
+        // Moving to a later position - shift items in between down
+        await Experience.updateMany(
+          {
+            sort: { $gt: experienceToUpdate.sort, $lte: boundedNewSort },
+            _id: { $ne: id },
+          },
+          { $inc: { sort: -1 } },
+          { session }
+        );
+      } else if (boundedNewSort < experienceToUpdate.sort) {
+        // Moving to an earlier position - shift items in between up
+        await Experience.updateMany(
+          {
+            sort: { $gte: boundedNewSort, $lt: experienceToUpdate.sort },
+            _id: { $ne: id },
+          },
+          { $inc: { sort: 1 } },
+          { session }
+        );
+      }
+
+      updateData.sort = boundedNewSort;
+    }
+
+    // Skip update if no changes
+    if (Object.keys(updateData).length === 0) {
+      await session.commitTransaction();
+      res.status(200).json({
+        success: true,
+        message: "No changes to update",
+        data: experienceToUpdate,
+      });
+    }
+
+    // Update experience with validated changes
+    const updatedExperience = await Experience.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+
+    res.status(200).json({
+      success: true,
+      message: "Experience level updated successfully",
+      data: updatedExperience,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+
+    // Enhanced error logging and handling
+    console.error("Update experience error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to update experience";
+    return next(createHttpError(500, errorMessage));
+  } finally {
+    session.endSession();
+  }
+};
+
+// Delete experience
+export const deleteExperience = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { id } = req.params;
+
+    const experienceToDelete = await Experience.findById(id).session(session);
+    if (!experienceToDelete) {
+      return next(createHttpError(404, "Experience level not found"));
+    }
+
+    await Experience.findByIdAndDelete(id, { session });
+
+    await Experience.updateMany(
+      { sort: { $gt: experienceToDelete.sort } },
+      { $inc: { sort: -1 } },
+      { session }
+    );
+
+    await session.commitTransaction();
+
+    res.status(200).json({
+      success: true,
+      message: "Experience level deleted successfully",
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    return next(createHttpError(500, "Failed to delete experience"));
+  } finally {
+    session.endSession();
+  }
+};
+
 // import Experience from "../models/Experience";
 // import createHttpError from "http-errors";
 // import { Request, Response, NextFunction } from "express";
@@ -319,291 +608,3 @@
 //   );
 // };
 // */
-import Experience from "../models/Experience";
-import createHttpError from "http-errors";
-import { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
-
-// Get all experiences
-export const getAllExperience = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const experiences = await Experience.find().sort({ sort: 1 });
-    res.status(200).json({
-      success: true,
-      data: experiences,
-    });
-  } catch (error) {
-    return next(createHttpError(500, "Failed to fetch experiences"));
-  }
-};
-
-// Create single experience
-export const createExperience = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { name, sort } = req.body;
-
-    // Check if name exists
-    const existingName = await Experience.findOne({ name }).session(session);
-    if (existingName) {
-      return next(createHttpError(409, "Experience name already exists"));
-    }
-
-    // Get all experiences with a lock for update
-    const experiences = await Experience.find()
-      .sort({ sort: 1 })
-      .session(session);
-
-    // Find the appropriate position for the new sort number
-    const targetSort =
-      parseInt(sort) > experiences.length + 1
-        ? experiences.length + 1
-        : parseInt(sort);
-
-    // Instead of updating each document individually, use updateMany with a filter
-    await Experience.updateMany(
-      { sort: { $gte: targetSort } },
-      { $inc: { sort: 1 } },
-      { session }
-    );
-
-    // Create new experience
-    const newExperience = new Experience({
-      name,
-      sort: targetSort,
-    });
-    await newExperience.save({ session });
-
-    await session.commitTransaction();
-
-    res.status(201).json({
-      success: true,
-      message: "Experience level created successfully",
-      data: newExperience,
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    return next(createHttpError(500, "Failed to create experience"));
-  } finally {
-    session.endSession();
-  }
-};
-
-// Create bulk experiences
-export const createExperienceInBulk = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { start, end } = req.body;
-    if (start % 2 !== 0 || end % 2 !== 0) {
-      return next(createHttpError(400, "Start and end must be even numbers"));
-    }
-
-    const existingExperiences = await Experience.find()
-      .sort({ sort: 1 })
-      .session(session);
-
-    const experienceArray = [];
-    let nextSort = existingExperiences.length + 1;
-
-    for (let i = start; i < end; i += 2) {
-      const name = `${i} to ${i + 2} years`;
-
-      const existingName = await Experience.findOne({ name }).session(session);
-      if (existingName) {
-        return next(
-          createHttpError(409, `Experience with name "${name}" already exists`)
-        );
-      }
-
-      experienceArray.push({
-        name,
-        sort: nextSort++,
-      });
-    }
-
-    const data = await Experience.insertMany(experienceArray, { session });
-
-    await session.commitTransaction();
-
-    res.status(201).json({
-      success: true,
-      message: "Experience levels created successfully",
-      data,
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    return next(createHttpError(500, "Failed to create bulk experiences"));
-  } finally {
-    session.endSession();
-  }
-};
-
-// Update experience
-export const updateExperience = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { id } = req.params;
-    const { name, sort } = req.body;
-
-    // Find experience to update while validating it exists
-    const experienceToUpdate = await Experience.findById(id).session(session);
-    if (!experienceToUpdate) {
-      return next(createHttpError(404, "Experience level not found"));
-    }
-
-    // Create update object with only valid changes
-    const updateData: any = {};
-
-    // Handle name update with validation
-    if (name && name !== experienceToUpdate.name) {
-      const existingName = await Experience.findOne({ name }).session(session);
-      if (existingName) {
-        return next(createHttpError(409, "Experience name already exists"));
-      }
-      updateData.name = name;
-    }
-
-    // Handle sort update with bulk operations
-    if (sort !== undefined && sort !== experienceToUpdate.sort) {
-      const newSort = parseInt(sort);
-
-      // Validate sort value
-      if (isNaN(newSort) || newSort < 1) {
-        return next(
-          createHttpError(400, "Sort value must be a positive number")
-        );
-      }
-
-      // Get max sort value to prevent out-of-bounds sorting
-      const maxSortDoc = await Experience.findOne({})
-        .sort({ sort: -1 })
-        .limit(1)
-        .select("sort")
-        .session(session);
-
-      const maxSort = maxSortDoc ? maxSortDoc.sort : 0;
-      const boundedNewSort = Math.min(newSort, maxSort);
-
-      // Use updateMany for more efficient bulk operations
-      if (boundedNewSort > experienceToUpdate.sort) {
-        // Moving to a later position - shift items in between down
-        await Experience.updateMany(
-          {
-            sort: { $gt: experienceToUpdate.sort, $lte: boundedNewSort },
-            _id: { $ne: id },
-          },
-          { $inc: { sort: -1 } },
-          { session }
-        );
-      } else if (boundedNewSort < experienceToUpdate.sort) {
-        // Moving to an earlier position - shift items in between up
-        await Experience.updateMany(
-          {
-            sort: { $gte: boundedNewSort, $lt: experienceToUpdate.sort },
-            _id: { $ne: id },
-          },
-          { $inc: { sort: 1 } },
-          { session }
-        );
-      }
-
-      updateData.sort = boundedNewSort;
-    }
-
-    // Skip update if no changes
-    if (Object.keys(updateData).length === 0) {
-      await session.commitTransaction();
-      res.status(200).json({
-        success: true,
-        message: "No changes to update",
-        data: experienceToUpdate,
-      });
-    }
-
-    // Update experience with validated changes
-    const updatedExperience = await Experience.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, session }
-    );
-
-    await session.commitTransaction();
-
-    res.status(200).json({
-      success: true,
-      message: "Experience level updated successfully",
-      data: updatedExperience,
-    });
-  } catch (error) {
-    await session.abortTransaction();
-
-    // Enhanced error logging and handling
-    console.error("Update experience error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Failed to update experience";
-    return next(createHttpError(500, errorMessage));
-  } finally {
-    session.endSession();
-  }
-};
-
-// Delete experience
-export const deleteExperience = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { id } = req.params;
-
-    const experienceToDelete = await Experience.findById(id).session(session);
-    if (!experienceToDelete) {
-      return next(createHttpError(404, "Experience level not found"));
-    }
-
-    await Experience.findByIdAndDelete(id, { session });
-
-    await Experience.updateMany(
-      { sort: { $gt: experienceToDelete.sort } },
-      { $inc: { sort: -1 } },
-      { session }
-    );
-
-    await session.commitTransaction();
-
-    res.status(200).json({
-      success: true,
-      message: "Experience level deleted successfully",
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    return next(createHttpError(500, "Failed to delete experience"));
-  } finally {
-    session.endSession();
-  }
-};
