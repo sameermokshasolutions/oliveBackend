@@ -53,6 +53,8 @@ export const getAllCandidates = async (
           joinedDate: "$createdAt",
         },
       },
+      { $skip: skip },
+      { $limit: limitNumber },
       {
         $project: {
           firstName: 1,
@@ -66,8 +68,6 @@ export const getAllCandidates = async (
           experienceYears: 1,
         },
       },
-      { $skip: skip },
-      { $limit: limitNumber },
     ];
 
     const candidates = await usermodal.aggregate(pipeline);

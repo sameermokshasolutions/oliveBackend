@@ -1,13 +1,11 @@
 import { NextFunction, RequestHandler, Response, Request } from "express";
-import Job, { IJob } from "../../job/models/Job";
-import User from "../../user/userModals/usermodal";
 import CandidateModel from "../../user/userModals/Candidate";
 
 import createHttpError from "http-errors";
 import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 
 export const getAppliedCandidates: RequestHandler = async (
-  req: any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {

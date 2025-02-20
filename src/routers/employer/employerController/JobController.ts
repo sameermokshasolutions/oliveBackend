@@ -52,7 +52,7 @@ export const getAllJobs = async (
   next: NextFunction
 ) => {
   const userId = req.user?.id;
-  const { page = "1", limit = "5" } = req.query;
+  const { page = "1", limit = "5", status, jobAvailability } = req.query;
 
   const pageNumber = Number(page) > 0 ? Number(page) : 1;
   const limitNumber = Number(limit) > 0 ? Number(limit) : 10;
@@ -63,13 +63,26 @@ export const getAllJobs = async (
   }
 
   try {
-    // Find the employer's profile based on the userId
     const employerProfile = await EmployerProfile.findOne({ userId });
     if (!employerProfile) {
       return next(createHttpError(403, "Complete your profile"));
     }
 
-    const matchConditions: any = { company: employerProfile._id };
+    const matchConditions: any = {
+      company: employerProfile._id,
+    };
+
+    if (status && ["pending", "approved", "reject"].includes(String(status))) {
+      matchConditions.jobApprovalStatus = status;
+    }
+    if (jobAvailability) {
+      const currentDate = new Date();
+      if (jobAvailability === "active") {
+        matchConditions.deadline = { $gt: currentDate };
+      } else if (jobAvailability === "expired") {
+        matchConditions.deadline = { $lt: currentDate };
+      }
+    }
 
     const totalJobs = await Job.countDocuments(matchConditions);
 
@@ -90,6 +103,9 @@ export const getAllJobs = async (
           appliedCandidates: { $size: "$appliedCandidates" },
         },
       },
+      { $sort: { createdAt: 1 } },
+      { $skip: skip },
+      { $limit: limitNumber },
       {
         $project: {
           _id: 1,
@@ -102,15 +118,13 @@ export const getAllJobs = async (
           numberOfCandidates: 1,
         },
       },
-      { $skip: skip },
-      { $limit: limitNumber },
     ]);
 
     res.status(200).json({
       success: true,
       message: "Jobs fetched successfully",
       data: {
-        appliedUsersByJobId: appliedUsersByJobId,
+        appliedCandidates: appliedUsersByJobId,
         pagination: {
           total: totalJobs,
           page: pageNumber,

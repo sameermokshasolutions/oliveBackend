@@ -74,6 +74,8 @@ export const getAllEmployers = async (
           profileStatus: "$userInfo.profileStatus",
         },
       },
+      { $skip: skip },
+      { $limit: limitNumber },
       {
         $project: {
           _id: 1,
@@ -89,8 +91,6 @@ export const getAllEmployers = async (
           profileStatus: 1,
         },
       },
-      { $skip: skip },
-      { $limit: limitNumber },
     ]);
 
     const totalDocuments = await EmployerProfile.countDocuments(
