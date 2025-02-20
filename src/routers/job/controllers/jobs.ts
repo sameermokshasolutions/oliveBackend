@@ -87,36 +87,47 @@ export const getJobById = async (
       return next(createHttpError(404, "User or job id not found"));
     }
 
-    const jobs = await Job.findById(jobId).populate({
-      path: "company",
-      select: "companyName aboutUs",
-    });
+    const jobs = await Job.findById(jobId)
+      .populate({
+        path: "company",
+        select: "companyName aboutUs",
+      })
+      .select("-__v")
+      .lean();
 
     const appliedJob = await AppliedJobsByCandidateModel.findOne({
       userId,
       jobId,
-    });
+    })
+      .select("status applicationDate lastStatusUpdate -_id employerNote")
+      .lean();
 
     const savedJob = await SavedJob.findOne({
       userId,
       savedJobs: jobId,
-    });
+    }).lean();
 
     const hasSavedJob = !!savedJob;
     const hasApplied = !!appliedJob;
+
+    if (hasApplied) {
+      (jobs as any).applicationDetails = appliedJob;
+    } else {
+      (jobs as any).applicationDetails = null;
+    }
 
     res.status(200).json({
       success: true,
       message: "Job Fetched Successfully",
       data: {
-        ...jobs?.toObject(),
+        ...jobs,
         hasApplied,
         hasSavedJob,
       },
     });
   } catch (error) {
     console.error("Error fetching jobs:", error);
-    res.status(500).json({ error: "Failed to fetch jobs" });
+    return next(createHttpError(500, "Failed to fetch job details"));
   }
 };
 
