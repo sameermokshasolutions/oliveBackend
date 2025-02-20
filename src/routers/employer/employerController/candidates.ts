@@ -15,7 +15,7 @@ export const getAppliedCandidates: RequestHandler = async (
     const { jobId } = req.params;
 
     const documents = await AppliedJobsByCandidateModel.find({
-      "appliedJobs.jobId": jobId,
+      jobId,
     }).select("userId");
 
     const userIds = documents.map((doc) => doc.userId);
