@@ -1,9 +1,17 @@
 // import AppliedJobs from "../models/AppliedJobs.model";
-import { PipelineStage } from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import logger from "../../../utils/logger";
 import AppliedJobsByCandidateModel from "../models/AppliedJobsByCandidateModel";
 import Job, { FacetResult, SearchQueryParams } from "../models/Job";
 import SavedJob from "../models/savedJobsModel";
+import { Request, Response, NextFunction } from "express";
+import createHttpError from "http-errors";
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 
 export const getJobs = async (req: any, res: any) => {
   const userId = req.user.id;
@@ -66,10 +74,18 @@ export const getPublicJobs = async (req: any, res: any) => {
   }
 };
 
-export const getJobById = async (req: any, res: any) => {
+export const getJobById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const jobId = req.params.id;
     const userId = req.user?.id;
+
+    if (!userId || !jobId) {
+      return next(createHttpError(404, "User or job id not found"));
+    }
 
     const jobs = await Job.findById(jobId).populate({
       path: "company",
@@ -78,14 +94,12 @@ export const getJobById = async (req: any, res: any) => {
 
     const appliedJob = await AppliedJobsByCandidateModel.findOne({
       userId,
-      appliedJobs: {
-        $elemMatch: { jobId },
-      },
+      jobId,
     });
 
     const savedJob = await SavedJob.findOne({
       userId,
-      savedJobs: { $in: [jobId] },
+      savedJobs: jobId,
     });
 
     const hasSavedJob = !!savedJob;
