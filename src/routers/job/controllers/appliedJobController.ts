@@ -113,6 +113,13 @@ export const getAppliedJobs = async (
       {
         $unwind: "$companyDetails",
       },
+      { $skip: skip },
+      { $limit: limitNumber },
+      {
+        $sort: {
+          applicationDate: -1,
+        },
+      },
       {
         $project: {
           _id: 1,
@@ -138,13 +145,6 @@ export const getAppliedJobs = async (
           },
         },
       },
-      {
-        $sort: {
-          applicationDate: -1,
-        },
-      },
-      { $skip: skip },
-      { $limit: limitNumber },
     ];
 
     const countPipeline: any = [
@@ -157,22 +157,25 @@ export const getAppliedJobs = async (
       AppliedJobsByCandidateModel.aggregate(dataPipeline),
     ]);
 
-    console.log(countResult);
+    const totalJobs = countResult[0]?.total || 0;
 
     res.status(200).json({
       success: true,
-      message: "Applied jobs fetched",
+      message: appliedJobs
+        ? "Applied jobs fetched"
+        : "You have no jobs applied",
       data: {
         appliedJobs,
         pagination: {
-          total: countResult[0].total,
+          total: totalJobs,
           page: pageNumber,
           limit: limitNumber,
-          pages: Math.ceil(countResult[0].total / limitNumber),
+          pages: Math.ceil(totalJobs / limitNumber),
         },
       },
     });
   } catch (error) {
+    console.log(error);
     next(createHttpError(500, "An error occurred while fetching applied jobs"));
   }
 };

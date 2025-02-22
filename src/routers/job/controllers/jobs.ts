@@ -90,7 +90,7 @@ export const getJobById = async (
     const jobs = await Job.findById(jobId)
       .populate({
         path: "company",
-        select: "companyName aboutUs",
+        select: "companyName aboutUs logoUrl",
       })
       .select("-__v")
       .lean();
