@@ -11,7 +11,7 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const applyForJob = async (
-  req: any,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -29,24 +29,29 @@ export const applyForJob = async (
       return next(createHttpError(404, "Job not found"));
     }
 
-    // if (new Date(job.deadline) < new Date()) {
-    //   return next(
-    //     createHttpError(400, "This job is no longer accepting applications")
-    //   );
-    // }
+    if (job.jobApprovalStatus !== "approved") {
+      return next(
+        createHttpError(400, "This job is not accepting applications")
+      );
+    }
 
-    const existingAppliedJobs = await AppliedJobsByCandidateModel.find({
+    if (new Date(job.deadline) < new Date()) {
+      return next(
+        createHttpError(400, "This job is no longer accepting applications")
+      );
+    }
+
+    const existingAppliedJobs = await AppliedJobsByCandidateModel.findOne({
       userId,
       jobId,
     });
 
-    if (existingAppliedJobs && existingAppliedJobs.length) {
+    if (existingAppliedJobs) {
       return next(
         createHttpError(400, "You have already applied for this job")
       );
     }
 
-    // Create new application
     const newApplication = new AppliedJobsByCandidateModel({
       userId,
       jobId,
