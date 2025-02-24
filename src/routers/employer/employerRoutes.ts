@@ -9,11 +9,10 @@ import {
   deleteJob,
   getAllJobs,
   getJobById,
-  searchCandidates,
   UpdateJob,
 } from "./employerController/JobController";
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
-import { getAppliedCandidates } from "./employerController/candidates";
+import { getAppliedCandidates, searchCandidates } from "./employerController/candidates";
 const employerRouter = express.Router();
 
 // Route for user registration with validation middleware
