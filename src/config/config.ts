@@ -10,7 +10,7 @@ const _config = {
   env: process.env.NODE_ENV,
   jwtSecret: process.env.JWT_SECRET || "sfasdfasdfasfas",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
-  frontEndUrl: process.env.FRONTENd_URL,
+  frontEndUrl: process.env.FRONTEND_URL,
   emailUser: process.env.EMAIL_USER!,
   emailPassword: process.env.EMAIL_PASS!,
 };

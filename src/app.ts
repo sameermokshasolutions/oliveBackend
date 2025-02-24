@@ -7,10 +7,11 @@ import cookieParser from "cookie-parser";
 import employerRouter from "./routers/employer/employerRoutes";
 import adminRouter from "./routers/admin/adminRoutes";
 import jobRouter from "./routers/job/jobRouter";
+// import { config } from "./config/config";
 
 const app: Application = express();
 
-// CORS Configuration
+// CORS Configuration | config.frontEndUrl
 const corsOptions = {
   origin: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
