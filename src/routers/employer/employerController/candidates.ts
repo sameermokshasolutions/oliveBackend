@@ -28,10 +28,12 @@ export const getAppliedCandidates: RequestHandler = async (
 
     const result = await CandidateModel.find({
       userId: { $in: userIds },
-    }).populate({
-      path: "userId",
-      select: "firstName lastName -_id",
-    });
+    })
+      .select("userId email experienceYears resumeUrl profileUrl availability")
+      .populate({
+        path: "userId",
+        select: "firstName lastName -_id",
+      });
 
     res.status(200).json({
       success: true,

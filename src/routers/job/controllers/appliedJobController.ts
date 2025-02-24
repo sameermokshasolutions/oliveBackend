@@ -1,14 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import createHttpError from "http-errors";
 import Job from "../models/Job";
 import AppliedJobsByCandidateModel from "../models/AppliedJobsByCandidateModel";
 import mongoose from "mongoose";
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
 
 export const applyForJob = async (
   req: AuthenticatedRequest,
