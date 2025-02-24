@@ -12,7 +12,10 @@ import {
   UpdateJob,
 } from "./employerController/JobController";
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
-import { getAppliedCandidates, searchCandidates } from "./employerController/candidates";
+import {
+  getAppliedCandidatesByJobId,
+  searchCandidates,
+} from "./employerController/candidates";
 const employerRouter = express.Router();
 
 // Route for user registration with validation middleware
@@ -38,7 +41,7 @@ employerRouter.get("/getAllJobs", employerAuthMiddleware, getAllJobs);
 employerRouter.get(
   "/AppliedCandidates/:jobId",
   employerAuthMiddleware,
-  getAppliedCandidates
+  getAppliedCandidatesByJobId
 );
 
 // CANDIDATE SEARCH AND FILTERING

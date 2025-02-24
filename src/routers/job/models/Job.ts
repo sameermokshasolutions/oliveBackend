@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
+import EmployerProfile from "../../employer/models/EmployerProfile";
 export interface SearchQueryParams {
   keyword?: string;
   location?: string;
@@ -44,6 +45,13 @@ export interface IJob extends Document {
   skills: string[];
   dateOfApplication?: Date;
   jobRejectReason?: String;
+}
+
+interface IJobsModel extends Model<IJob> {
+  checkJobOwnership(
+    employerProfileId: mongoose.Types.ObjectId,
+    jobId: mongoose.Types.ObjectId
+  ): Promise<boolean>;
 }
 
 const JobSchema: Schema = new Schema(
@@ -93,4 +101,25 @@ const JobSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model<IJob>("Job", JobSchema);
+JobSchema.statics.checkJobOwnership = async function (userId, jobId) {
+  try {
+    const employerProfile = await EmployerProfile.findOne({ userId }).select(
+      "_id"
+    );
+    if (!employerProfile) {
+      return false;
+    }
+
+    const job = await this.findOne({
+      _id: jobId,
+      company: employerProfile._id,
+    });
+
+    return !!job; // Returns true if job exists and belongs to user, false otherwise
+  } catch (error) {
+    console.error("Error checking job ownership:", error);
+    return false;
+  }
+};
+
+export default mongoose.model<IJob, IJobsModel>("Job", JobSchema);

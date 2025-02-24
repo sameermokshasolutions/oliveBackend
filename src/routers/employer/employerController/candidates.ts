@@ -1,52 +1,87 @@
 import { NextFunction, RequestHandler, Response, Request } from "express";
 import CandidateModel from "../../user/userModals/Candidate";
-
+import Job from "../../job/models/Job";
 import createHttpError from "http-errors";
 import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 import mongoose from "mongoose";
 
-export const getAppliedCandidates: RequestHandler = async (
-  req: Request,
+export const getAppliedCandidatesByJobId: RequestHandler = async (
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { jobId } = req.params;
+    const userId = req.user?.id;
 
-    const documents = await AppliedJobsByCandidateModel.find({
-      jobId,
-    }).select("userId");
-
-    const userIds = documents.map((doc) => doc.userId);
-
-    if (userIds.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "No candidate applied to this job",
-        data: null,
-      });
+    if (!userId) {
+      return next(createHttpError(401, "Unauthorized Access"));
     }
 
-    const result = await CandidateModel.find({
-      userId: { $in: userIds },
-    })
-      .select("userId email experienceYears resumeUrl profileUrl availability")
-      .populate({
-        path: "userId",
-        select: "firstName lastName -_id",
-      });
+    const isJobOwnedByEmployer = await Job.checkJobOwnership(
+      new mongoose.Types.ObjectId(userId),
+      new mongoose.Types.ObjectId(jobId)
+    );
+
+    if (!isJobOwnedByEmployer) {
+      return next(createHttpError(401, "This job is owned by other employer"));
+    }
+
+    const jobObjectId = new mongoose.Types.ObjectId(jobId);
+
+    const data = await AppliedJobsByCandidateModel.aggregate([
+      {
+        $match: { jobId: jobObjectId },
+      },
+      {
+        $lookup: {
+          from: "users",
+          foreignField: "_id",
+          localField: "userId",
+          as: "userBasicInfo",
+        },
+      },
+      {
+        $unwind: "$userBasicInfo",
+      },
+      {
+        $lookup: {
+          from: "candidates",
+          foreignField: "userId",
+          localField: "userId",
+          as: "otherInfo",
+        },
+      },
+      {
+        $unwind: "$otherInfo",
+      },
+      {
+        $sort: { applicationDate: -1 },
+      },
+      {
+        $project: {
+          status: 1,
+          applicationDate: 1,
+          userId: 1,
+          jobId: 1,
+          firstName: "$userBasicInfo.firstName",
+          lastName: "$userBasicInfo.lastName",
+          email: "$userBasicInfo.email",
+          resumeUrl: "$otherInfo.resumeUrl",
+          experienceYears: "$otherInfo.experienceYears",
+        },
+      },
+    ]);
 
     res.status(200).json({
       success: true,
       message: "Applications",
-      data: result,
+      data: data,
     });
   } catch (error) {
     return next(createHttpError(500, "Error while getting applicants"));
   }
 };
-
-
 
 export const searchCandidates = async (
   req: any,
@@ -159,4 +194,3 @@ export const searchCandidates = async (
     next(createHttpError(500, "Error searching candidates"));
   }
 };
-

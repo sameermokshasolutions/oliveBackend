@@ -28,7 +28,7 @@ export const createJob: RequestHandler = async (
     const employerProfile = await EmployerProfile.findOne({ userId });
 
     if (employerProfile) {
-      jobData.company = employerProfile._id as mongoose.Schema.Types.ObjectId;
+      jobData.company = employerProfile._id as any;
     } else {
       return next(createHttpError(404, "complete employer profile"));
     }

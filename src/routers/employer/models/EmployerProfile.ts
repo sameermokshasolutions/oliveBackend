@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import { IndustryType, IndustrySector } from "../types/employerTypes";
 
 export interface IEmployerProfile extends Document {
+  _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   companyName: string;
   companySize: string;
@@ -108,8 +109,3 @@ export default mongoose.model<IEmployerProfile>(
   "EmployerProfile",
   EmployerProfileSchema
 );
-
-// company_type: {
-//   type: String,
-//   enum: Object.values(CompanyType),
-// },
