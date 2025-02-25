@@ -13,7 +13,7 @@ const connectDb = async () => {
 
         })
         //  connect to database 
-        await mongoose.connect(config.databaseUrl)
+        await mongoose.connect(process.env.MONGO_DB!)
         console.log("END DB")
     } catch (error) {
         console.log("END DB",error)
