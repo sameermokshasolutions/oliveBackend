@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IInterview } from "../types/interviewTypes";
 
 const interviewSchema = new Schema<IInterview>(
@@ -34,9 +34,15 @@ const interviewSchema = new Schema<IInterview>(
     },
     location: {
       type: String,
+      required: function () {
+        return this.interviewType === "in-person";
+      },
     },
     meetingLink: {
       type: String,
+      required: function () {
+        return this.interviewType === "online";
+      },
     },
     interviewType: {
       type: String,
