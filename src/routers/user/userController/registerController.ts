@@ -9,7 +9,7 @@ import { verificationEmailTemplate } from "../../../views/emailTemplates"; // Em
 import { config } from "../../../config/config"; // Configuration file
 
 // Ensure that the JWT_SECRET environment variable is set
-if (!process.env.JWT_SECRET) {
+if (!config.jwtSecret) {
   throw new Error("JWT_SECRET not set in environment variables");
 }
 
