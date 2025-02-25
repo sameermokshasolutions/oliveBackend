@@ -90,8 +90,25 @@ export const getAppliedCandidatesByJobId: RequestHandler = async (
   }
 };
 
+// Define the valid status types for better type safety
+type ApplicationStatus =
+  | "pending"
+  | "reviewed"
+  | "shortlisted"
+  | "rejected"
+  | "hired";
+
+// Define the status transition map
+const statusTransitionMap: Record<ApplicationStatus, ApplicationStatus[]> = {
+  pending: ["reviewed", "shortlisted", "rejected"],
+  reviewed: ["shortlisted", "rejected"],
+  shortlisted: ["hired", "rejected"],
+  rejected: [],
+  hired: [],
+};
+
 export const updateApplicationStatus = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -100,12 +117,16 @@ export const updateApplicationStatus = async (
 
     if (!status || !applicationId) {
       return next(
-        createHttpError(406, "status and application ID are required")
+        createHttpError(400, "Status and application ID are required")
       );
     }
 
+    if (!Object.keys(statusTransitionMap).includes(status)) {
+      return next(createHttpError(400, "Invalid status value"));
+    }
+
     if (!mongoose.Types.ObjectId.isValid(applicationId)) {
-      createHttpError(406, "Invalid application ID");
+      return next(createHttpError(400, "Invalid application ID format"));
     }
 
     const application = await AppliedJobsByCandidateModel.findById(
@@ -113,18 +134,53 @@ export const updateApplicationStatus = async (
     );
 
     if (!application) {
-      return next(createHttpError(403, "Application not found"));
+      return next(createHttpError(404, "Application not found"));
     }
 
-    await application.updateStatus(status, note ?? "");
+    const job = await mongoose.model("Job").findById(application.jobId);
+
+    if (!job) {
+      return next(createHttpError(404, "Associated job not found"));
+    }
+
+    const currentStatus = application.status as ApplicationStatus;
+    const newStatus = status as ApplicationStatus;
+
+    if (!statusTransitionMap[currentStatus].includes(newStatus)) {
+      return next(
+        createHttpError(
+          403,
+          `Cannot update from '${currentStatus}' to '${newStatus}' status`
+        )
+      );
+    }
+
+    // Process note
+    const sanitizedNote = note?.trim() || "";
+
+    // Update status
+    await application.updateStatus(newStatus, sanitizedNote);
 
     res.status(200).json({
       success: true,
-      message: "Application status updated successfully",
-      data: null,
+      message: `Application status updated to '${newStatus}' successfully`,
+      data: {
+        applicationId,
+        previousStatus: currentStatus,
+        currentStatus: newStatus,
+        lastUpdated: new Date(),
+      },
     });
   } catch (error) {
-    return next(createHttpError(500, "Failed to update application status"));
+    console.error("Error updating application status:", error);
+    return next(
+      createHttpError(
+        500,
+        error instanceof Error
+          ? error.message
+          : "Failed to update application status"
+      )
+    );
   }
 };
 

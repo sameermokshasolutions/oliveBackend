@@ -103,13 +103,14 @@ export const getAllJobs = async (
           appliedCandidates: { $size: "$appliedCandidates" },
         },
       },
-      { $sort: { createdAt: 1 } },
+      { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limitNumber },
       {
         $project: {
           _id: 1,
           jobTitle: 1,
+          jobRole: 1,
           jobApprovalStatus: 1,
           jobType: 1,
           totalVacancies: 1,
