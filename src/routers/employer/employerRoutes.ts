@@ -2,7 +2,7 @@ import express from "express";
 import {
   getEmployerProfile,
   updateProfileController,
-} from "./employerController/employerProfile.controller";
+} from "./employerController/employerProfileController";
 import { authenticateToken } from "../../middlewares/authMiddleware";
 import {
   createJob,
@@ -10,14 +10,14 @@ import {
   getAllJobs,
   getJobById,
   UpdateJob,
-} from "./employerController/Job.controller";
+} from "./employerController/JobController";
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
 import {
   getAppliedCandidatesByJobId,
   searchCandidates,
   updateApplicationStatus,
-} from "./employerController/candidates.controller";
-import { scheduleInterview } from "./employerController/InterviewSchedule.controller";
+} from "./employerController/candidatesController";
+import { scheduleInterview } from "./employerController/InterviewScheduleController";
 const employerRouter = express.Router();
 
 // Route for user registration with validation middleware
