@@ -1,27 +1,8 @@
-import mongoose, { Document, Model } from "mongoose";
-
-// Interface for instance methods
-interface ISaveCandidatesMethods {
-  isCandidateSaved(candidateId: mongoose.Types.ObjectId): boolean;
-}
-
-// Interface for static methods
-interface ISaveCandidatesModel extends Model<ISaveCandidatesDoc> {
-  checkCandidateSaved(
-    userId: mongoose.Types.ObjectId,
-    candidateId: mongoose.Types.ObjectId
-  ): Promise<boolean>;
-}
-
-// Interface for the document
-interface ISaveCandidatesDoc extends Document {
-  userId: mongoose.Types.ObjectId;
-  savedCandidates: mongoose.Types.ObjectId[];
-  totalSaved: number;
-}
-
-// Combine document and methods interface
-interface ISaveCandidates extends ISaveCandidatesDoc, ISaveCandidatesMethods {}
+import mongoose from "mongoose";
+import {
+  ISaveCandidatesModel,
+  ISaveCandidates,
+} from "../types/saveCandidatesTypes";
 
 const saveCandidatesSchema = new mongoose.Schema<ISaveCandidates>(
   {
