@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
 /**
+ * 
  * Middleware to validate incoming request data.
  * If validation errors exist, it sends a 400 response with the errors.
  * If no errors exist, it calls the next middleware in the stack.
