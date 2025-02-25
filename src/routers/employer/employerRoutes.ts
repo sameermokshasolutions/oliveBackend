@@ -15,6 +15,7 @@ import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware"
 import {
   getAppliedCandidatesByJobId,
   searchCandidates,
+  updateApplicationStatus,
 } from "./employerController/candidates";
 const employerRouter = express.Router();
 
@@ -42,6 +43,11 @@ employerRouter.get(
   "/AppliedCandidates/:jobId",
   employerAuthMiddleware,
   getAppliedCandidatesByJobId
+);
+employerRouter.post(
+  "/updateApplicationStatus",
+  employerAuthMiddleware,
+  updateApplicationStatus
 );
 
 // CANDIDATE SEARCH AND FILTERING

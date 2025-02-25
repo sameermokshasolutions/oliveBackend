@@ -12,6 +12,7 @@ export const getAppliedCandidatesByJobId: RequestHandler = async (
 ) => {
   try {
     const { jobId } = req.params;
+    const { status = "pending" } = req.query;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -24,14 +25,20 @@ export const getAppliedCandidatesByJobId: RequestHandler = async (
     );
 
     if (!isJobOwnedByEmployer) {
-      return next(createHttpError(401, "This job is owned by other employer"));
+      return next(createHttpError(403, "This job is owned by other employer"));
     }
 
     const jobObjectId = new mongoose.Types.ObjectId(jobId);
 
+    const matchConditions: any = { jobId: jobObjectId };
+
+    if (status) {
+      matchConditions.status = status;
+    }
+
     const data = await AppliedJobsByCandidateModel.aggregate([
       {
-        $match: { jobId: jobObjectId },
+        $match: matchConditions,
       },
       {
         $lookup: {
@@ -80,6 +87,44 @@ export const getAppliedCandidatesByJobId: RequestHandler = async (
     });
   } catch (error) {
     return next(createHttpError(500, "Error while getting applicants"));
+  }
+};
+
+export const updateApplicationStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { status, applicationId, note } = req.body;
+
+    if (!status || !applicationId) {
+      return next(
+        createHttpError(406, "status and application ID are required")
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(applicationId)) {
+      createHttpError(406, "Invalid application ID");
+    }
+
+    const application = await AppliedJobsByCandidateModel.findById(
+      applicationId
+    );
+
+    if (!application) {
+      return next(createHttpError(403, "Application not found"));
+    }
+
+    await application.updateStatus(status, note ?? "");
+
+    res.status(200).json({
+      success: true,
+      message: "Application status updated successfully",
+      data: null,
+    });
+  } catch (error) {
+    return next(createHttpError(500, "Failed to update application status"));
   }
 };
 
