@@ -20,6 +20,7 @@ import {
 import {
   getShortListedCandidates,
   scheduleInterview,
+  updateScheduledInterview,
 } from "./employerController/InterviewScheduleController";
 import { validateInterview } from "./validators/validateInterview";
 import { validateRequest } from "../../middlewares/validateRequest";
@@ -69,6 +70,11 @@ employerRouter.get(
   "/shortListedCandidates",
   employerAuthMiddleware,
   getShortListedCandidates
+);
+employerRouter.post(
+  "/updateScheduledInterview",
+  employerAuthMiddleware,
+  updateScheduledInterview
 );
 
 // CANDIDATE SEARCH AND FILTERING

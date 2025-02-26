@@ -17,7 +17,6 @@ interface IInterview {
   location?: string;
   meetingLink?: string;
   notes?: string;
-  cancelReason?: string;
 }
 
 export const scheduleInterview = async (
@@ -53,7 +52,7 @@ export const scheduleInterview = async (
       data: scheduledInterview,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return next(createHttpError(500, "Failed to schedule interview"));
   }
 };
@@ -126,5 +125,48 @@ export const getShortListedCandidates = async (
     });
   } catch (error) {
     return next(createHttpError(500, "Error listing short listed candidates"));
+  }
+};
+
+interface IUpdateInterview {
+  interviewId: string;
+  scheduledAt: Date;
+  duration: number;
+  interviewType: "in-person" | "online" | "phone";
+  status: "completed" | "cancelled" | "rescheduled";
+  location: string;
+  meetingLink: string;
+  notes: string;
+  cancelReason: string;
+}
+
+export const updateScheduledInterview = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data: Partial<IUpdateInterview> = req.body;
+    const newObj = Object.fromEntries(
+      Object.entries(data).filter(([key]) => key !== "interviewId")
+    );
+    const updateScheduledInterview = await InterviewModel.findByIdAndUpdate(
+      data.interviewId,
+      newObj,
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message:
+        data.status === "rescheduled"
+          ? "Interview updated"
+          : data.status === "completed"
+          ? "Interview Completed"
+          : "Interview cancelled",
+      data: updateScheduledInterview,
+    });
+  } catch (error) {
+    console.log(error);
+    next(createHttpError(500, "Internal server error"));
   }
 };
