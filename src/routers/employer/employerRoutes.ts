@@ -17,7 +17,13 @@ import {
   searchCandidates,
   updateApplicationStatus,
 } from "./employerController/candidatesController";
-import { scheduleInterview } from "./employerController/InterviewScheduleController";
+import {
+  getShortListedCandidates,
+  scheduleInterview,
+} from "./employerController/InterviewScheduleController";
+import { validateInterview } from "./validators/validateInterview";
+import { validateRequest } from "../../middlewares/validateRequest";
+
 const employerRouter = express.Router();
 
 // Route for user registration with validation middleware
@@ -51,10 +57,18 @@ employerRouter.post(
   updateApplicationStatus
 );
 
+// INTERVIEW SCHEDULEING
 employerRouter.post(
   "/scheduleInterview",
+  validateInterview,
+  validateRequest,
   employerAuthMiddleware,
   scheduleInterview
+);
+employerRouter.get(
+  "/shortListedCandidates",
+  employerAuthMiddleware,
+  getShortListedCandidates
 );
 
 // CANDIDATE SEARCH AND FILTERING
@@ -63,4 +77,5 @@ employerRouter.post(
   employerAuthMiddleware,
   searchCandidates
 );
+
 export default employerRouter;

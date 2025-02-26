@@ -50,6 +50,7 @@ export const applyForJob = async (
       userId,
       jobId,
       status: "pending",
+      employerId: job.company,
       applicationDate: new Date(),
       lastStatusUpdate: new Date(),
     });

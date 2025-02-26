@@ -1,10 +1,24 @@
 import { Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
-import { IInterview } from "../types/interviewTypes";
 import EmployerProfile from "../models/EmployerProfile";
 import InterviewModel from "../models/InterviewSchedule";
-import mongoose from "mongoose";
+import { ObjectId } from "mongoose";
+
+interface IInterview {
+  applicationId: ObjectId;
+  jobId: ObjectId;
+  candidateId: ObjectId;
+  employerId: ObjectId;
+  scheduledAt: Date;
+  duration: number;
+  interviewType: "in-person" | "online" | "phone";
+  status: "scheduled" | "completed" | "cancelled" | "rescheduled";
+  location?: string;
+  meetingLink?: string;
+  notes?: string;
+  cancelReason?: string;
+}
 
 export const scheduleInterview = async (
   req: AuthenticatedRequest,
@@ -12,17 +26,7 @@ export const scheduleInterview = async (
   next: NextFunction
 ) => {
   try {
-    const {
-      applicationId,
-      candidateId,
-      duration,
-      interviewType,
-      jobId,
-      scheduledAt,
-      location,
-      meetingLink,
-      notes,
-    }: Partial<IInterview> = req.body;
+    const data: Partial<IInterview> = req.body;
 
     const userId = req.user?.id;
     if (!userId) {
@@ -38,17 +42,9 @@ export const scheduleInterview = async (
     }
 
     const scheduledInterview = await InterviewModel.create({
-      applicationId: new mongoose.Types.ObjectId(applicationId),
-      candidateId: new mongoose.Types.ObjectId(candidateId),
-      jobId: new mongoose.Types.ObjectId(jobId),
-      employerId: new mongoose.Types.ObjectId(userId),
+      ...data,
+      employerId: employerProfile._id,
       status: "scheduled",
-      duration,
-      interviewType,
-      scheduledAt,
-      location,
-      meetingLink,
-      notes,
     });
 
     res.status(200).json({
@@ -57,6 +53,78 @@ export const scheduleInterview = async (
       data: scheduledInterview,
     });
   } catch (error) {
+    console.log(error)
     return next(createHttpError(500, "Failed to schedule interview"));
+  }
+};
+
+export const getShortListedCandidates = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(createHttpError(401, "unauthorized"));
+    }
+
+    const employerProfile = await EmployerProfile.findOne({ userId });
+
+    if (!employerProfile)
+      return next(createHttpError(404, "Employer profile not found"));
+
+    const shortlistedCandidates = await AppliedJobsByCandidateModel.aggregate([
+      {
+        $match: {
+          employerId: employerProfile._id,
+          status: "shortlisted",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      {
+        $unwind: "$userDetails",
+      },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      {
+        $unwind: "$jobDetails",
+      },
+      {
+        $project: {
+          userId: 1,
+          jobId: 1,
+          employerId: 1,
+          status: 1,
+          applicationDate: 1,
+          lastStatusUpdate: 1,
+          employerNote: 1,
+          firstName: "$userDetails.firstName",
+          lastName: "$userDetails.lastName",
+          jobRoleApplied: "$jobDetails.jobRole",
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Short listed candidates",
+      data: shortlistedCandidates,
+    });
+  } catch (error) {
+    return next(createHttpError(500, "Error listing short listed candidates"));
   }
 };

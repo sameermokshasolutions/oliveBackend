@@ -1,4 +1,4 @@
-import mongoose, {  Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IJobApplicationSchema } from "../types/applyJobsTypes";
 
 const appliedJobSchema = new Schema<IJobApplicationSchema>(
@@ -11,6 +11,11 @@ const appliedJobSchema = new Schema<IJobApplicationSchema>(
     jobId: {
       type: Schema.Types.ObjectId,
       ref: "Job",
+      required: true,
+    },
+    employerId: {
+      type: Schema.Types.ObjectId,
+      ref: "EmployerProfile",
       required: true,
     },
     status: {

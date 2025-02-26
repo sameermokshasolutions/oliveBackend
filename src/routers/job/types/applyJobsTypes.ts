@@ -10,6 +10,7 @@ interface ISaveCandidatesMethods {
 interface IJobApplication extends Document {
   userId: mongoose.Types.ObjectId;
   jobId: mongoose.Types.ObjectId;
+  employerId: mongoose.Types.ObjectId;
   status: "pending" | "reviewed" | "shortlisted" | "rejected" | "hired";
   applicationDate: Date;
   lastStatusUpdate: Date;
