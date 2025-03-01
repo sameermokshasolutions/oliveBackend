@@ -18,6 +18,7 @@ import {
   updateApplicationStatus,
 } from "./employerController/candidatesController";
 import {
+  getScheduledInterview,
   getShortListedCandidates,
   scheduleInterview,
   updateScheduledInterview,
@@ -70,6 +71,11 @@ employerRouter.get(
   "/shortListedCandidates",
   employerAuthMiddleware,
   getShortListedCandidates
+);
+employerRouter.get(
+  "/scheduledInterviews",
+  employerAuthMiddleware,
+  getScheduledInterview
 );
 employerRouter.post(
   "/updateScheduledInterview",

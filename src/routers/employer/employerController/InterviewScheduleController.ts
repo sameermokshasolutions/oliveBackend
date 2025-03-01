@@ -3,7 +3,7 @@ import createHttpError from "http-errors";
 import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 import EmployerProfile from "../models/EmployerProfile";
 import InterviewModel from "../models/InterviewSchedule";
-import { ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 
 interface IInterview {
   applicationId: ObjectId;
@@ -172,6 +172,79 @@ export const updateScheduledInterview = async (
     });
   } catch (error) {
     console.log(error);
-    next(createHttpError(500, "Internal server error"));
+    return next(createHttpError(500, "Internal server error"));
+  }
+};
+
+export const getScheduledInterview = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(createHttpError(403, "Unauthorized"));
+    }
+
+    const employer = await EmployerProfile.findOne({ userId }).select("_id");
+    if (!employer)
+      return next(createHttpError(403, "Create Employer Profile First"));
+
+    const scheduledInterviews = await InterviewModel.aggregate([
+      {
+        $match: {
+          employerId: employer._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "candidateId",
+          foreignField: "_id",
+          as: "candidateDetails",
+        },
+      },
+      {
+        $unwind: "$candidateDetails",
+      },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      {
+        $unwind: "$jobDetails",
+      },
+      {
+        $project: {
+          applicationId: 1,
+          jobId: 1,
+          candidateId: 1,
+          employerId: 1,
+          scheduledAt: 1,
+          duration: 1,
+          interviewType: 1,
+          status: 1,
+          location: 1,
+          meetingLink: 1,
+          cancelReason: 1,
+          firstName: "$candidateDetails.firstName",
+          lastName: "$candidateDetails.lastName",
+          jobRole: "$jobDetails.jobRole",
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "List of scheduled interviews",
+      data: scheduledInterviews,
+    });
+  } catch (error) {
+    console.log(error);
   }
 };
