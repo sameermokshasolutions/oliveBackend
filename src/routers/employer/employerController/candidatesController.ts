@@ -95,6 +95,7 @@ type ApplicationStatus =
   | "pending"
   | "reviewed"
   | "shortlisted"
+  | "scheduled"
   | "rejected"
   | "hired";
 
@@ -103,6 +104,7 @@ const statusTransitionMap: Record<ApplicationStatus, ApplicationStatus[]> = {
   pending: ["reviewed", "shortlisted", "rejected"],
   reviewed: ["shortlisted", "rejected"],
   shortlisted: ["hired", "rejected"],
+  scheduled: [],
   rejected: [],
   hired: [],
 };

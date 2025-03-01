@@ -45,6 +45,12 @@ export const scheduleInterview = async (
       status: "scheduled",
     });
 
+    const appiledJob = await AppliedJobsByCandidateModel.findById(
+      data.applicationId
+    );
+
+    await appiledJob?.updateStatus("scheduled", data.notes || "");
+
     res.status(200).json({
       success: true,
       message: "Interview scheduled successfully",

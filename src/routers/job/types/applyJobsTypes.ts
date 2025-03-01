@@ -11,7 +11,13 @@ interface IJobApplication extends Document {
   userId: mongoose.Types.ObjectId;
   jobId: mongoose.Types.ObjectId;
   employerId: mongoose.Types.ObjectId;
-  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "hired";
+  status:
+    | "pending"
+    | "reviewed"
+    | "shortlisted"
+    | "rejected"
+    | "hired"
+    | "scheduled";
   applicationDate: Date;
   lastStatusUpdate: Date;
   employerNote?: string;
