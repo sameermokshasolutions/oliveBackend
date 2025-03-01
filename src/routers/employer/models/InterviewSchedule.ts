@@ -7,6 +7,7 @@ const interviewSchema = new Schema<IInterview>(
       type: Schema.Types.ObjectId,
       ref: "AppliedJobsByCandidateModel",
       required: true,
+      unique: true,
     },
     jobId: {
       type: Schema.Types.ObjectId,

@@ -61,9 +61,9 @@ employerRouter.post(
 // INTERVIEW SCHEDULEING
 employerRouter.post(
   "/scheduleInterview",
+  employerAuthMiddleware,
   validateInterview,
   validateRequest,
-  employerAuthMiddleware,
   scheduleInterview
 );
 employerRouter.get(

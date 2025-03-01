@@ -42,7 +42,6 @@ export const scheduleInterview = async (
 
     const scheduledInterview = await InterviewModel.create({
       ...data,
-      employerId: employerProfile._id,
       status: "scheduled",
     });
 
