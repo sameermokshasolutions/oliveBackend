@@ -5,7 +5,6 @@ import connectDb from "./config/db";
 const startServer = async () => {
   try {
     // connect to database
-    console.log(`dfdf ----- ${config.env}`);
     await connectDb();
     const port = config.port || 3000;
     app.listen(port, () => {
