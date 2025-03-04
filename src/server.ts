@@ -4,7 +4,7 @@ import connectDb from "./config/db";
 
 const startServer = async () => {
   try {
-    // connect to database
+    // connect to database 
     await connectDb();
     const port = config.port || 3000;
     app.listen(port, () => {
