@@ -22,13 +22,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Body Parser Configuration
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser()); // Middleware to parse cookies
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Health check route
 app.get("/health", (req: Request, res: Response) => {
-  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    localeTimestamp: new Date().toLocaleString(),
+  });
 });
 
 // API Routes
