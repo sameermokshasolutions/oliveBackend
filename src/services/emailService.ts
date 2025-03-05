@@ -1,15 +1,24 @@
 import nodemailer from "nodemailer";
 import { EmailTemplate } from "../types/emailTemplate";
-
+import { config } from "../config/config";
+// {
+//       service: "gmail",
+//       auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS,
+//       },
+//     }
 class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.yandex.com", // Yandex SMTP server
+      port: 465, // Use 465 for SSL, 587 for TLS
+      secure: true, // True for port 465, false for 587
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: config.emailUser, // Your Yandex email
+        pass: config.emailPassword, // Your Yandex email password or app password
       },
     });
   }
@@ -20,7 +29,7 @@ class EmailService {
     template: EmailTemplate
   ): Promise<void> {
     const mailOptions = {
-      from: `"Olie Pro Health" <${process.env.EMAIL_USER}>`,
+      from: `"Hijr" <${config.emailUser}>`,
       to,
       subject,
       html: template.html,

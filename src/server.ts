@@ -4,11 +4,11 @@ import connectDb from "./config/db";
 
 const startServer = async () => {
   try {
-    // connect to database 
+    // connect to database
     await connectDb();
     const port = config.port || 3000;
     app.listen(port, () => {
-      console.log(`Server is running on port ${port} ${config.env}`);
+      console.log(`Server is running on port ${port} - ${config.env}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);

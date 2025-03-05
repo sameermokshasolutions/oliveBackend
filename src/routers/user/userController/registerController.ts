@@ -37,10 +37,10 @@ export const registerUser = async (
     // Check if the phone number is already registered in the database
     const existingPhone = await User.findOne({ phoneNumber });
     if (existingUser) {
-      throw createHttpError(409, "Email already registered"); // Conflict error for duplicate email
+      return next(createHttpError(409, "Email already registered")); // Conflict error for duplicate email
     }
     if (existingPhone) {
-      throw createHttpError(409, "Phone Number already in Use"); // Conflict error for duplicate phone number
+      return next(createHttpError(409, "Phone Number already in Use")); // Conflict error for duplicate phone number
     }
 
     // Generate a unique user ID by finding the last user and incrementing their ID
@@ -85,7 +85,7 @@ export const registerUser = async (
     } catch (emailError) {
       console.error("Error sending verification email:", emailError);
       await User.findByIdAndDelete(user._id);
-      throw createHttpError(500, "Failed to send verification email");
+      return next(createHttpError(500, "Failed to send verification email"));
     }
 
     // Prepare the user response by excluding sensitive fields like password
@@ -100,7 +100,7 @@ export const registerUser = async (
       data: userResponse,
     });
   } catch (error) {
-    next(error); // Pass any error to the global error handling middleware
+    return next(createHttpError(500, "Internal server error")); // Pass any error to the global error handling middleware
   }
 };
 
@@ -120,12 +120,14 @@ export const verifyEmail = async (
 
     // If no user is found or the token is invalid, throw an error
     if (!user) {
-      throw createHttpError(401, "Invalid or expired verification token"); // Unauthorized error
+      return next(
+        createHttpError(401, "Invalid or expired verification token")
+      );
     }
 
-    // Update the user's email verification status and clear the verification token
-    user.emailVerification = true; // Mark email as verified
-    user.verificationToken = undefined; // Clear the token to prevent reuse
+    user.emailVerification = true;
+    user.verificationToken = undefined;
+    user.status = "Active";
     await user.save();
 
     // Send a success response to the client
@@ -134,6 +136,6 @@ export const verifyEmail = async (
       message: "Email verified successfully. You can now log in.",
     });
   } catch (error) {
-    next(error); // Pass any error to the global error handling middleware
+    return next(createHttpError(500, "Internal server error"));
   }
 };
