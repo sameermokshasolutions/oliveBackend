@@ -1,5 +1,3 @@
-
-
 export const verificationEmailTemplate = (verificationLink: string) => ({
   html: `
     <!DOCTYPE html>
@@ -7,13 +5,13 @@ export const verificationEmailTemplate = (verificationLink: string) => ({
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Verify Your Email - Olie Pro Health</title>
+      <title>Verify Your Email - Hijr</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; border-radius: 5px;">
         <tr>
           <td style="padding: 20px; text-align: center;">
-            <img src="https://your-logo-url.com/logo.png" alt="Olie Pro Health Logo" style="max-width: 150px; height: auto;">
+            <img src="https://your-logo-url.com/logo.png" alt="Hijr Logo" style="max-width: 150px; height: auto;">
             <h1 style="color: #2c3e50; margin-top: 20px;">Olie Pro Health</h1>
           </td>
         </tr>
@@ -34,8 +32,5 @@ export const verificationEmailTemplate = (verificationLink: string) => ({
       </table>
     </body>
     </html>
-  `
+  `,
 });
-
-// You can add more email templates here as needed
-
