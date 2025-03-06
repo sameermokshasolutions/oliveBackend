@@ -97,7 +97,7 @@ export const getAllJobs = async (
       Job.aggregate(totalCountPipeline),
     ]);
 
-    const totalDocuments =  totalCountResult[0]?.total || 0;
+    const totalDocuments = totalCountResult[0]?.total || 0;
 
     res.status(200).json({
       success: true,
@@ -118,8 +118,6 @@ export const getAllJobs = async (
   }
 };
 
-
-
 export const approveJob = async (
   req: Request,
   res: Response,
@@ -129,8 +127,8 @@ export const approveJob = async (
     const { id } = req.params;
     // const { jobApprovalStatus } = req.body;
 
-    const updatedJobs = await Job.findByIdAndUpdate(
-      id,
+    const updatedJobs = await Job.findOneAndUpdate(
+      { _id: id },
       { jobApprovalStatus: "approved" },
       { new: true }
     );
@@ -165,7 +163,7 @@ export const rejectJob = async (
     if (!updatedJobs) {
       return next(createHttpError(404, "Job not found"));
     }
-    
+
     res.status(200).json({
       success: true,
       message: "Job Rejected Successfully",

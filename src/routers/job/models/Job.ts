@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import EmployerProfile from "../../employer/models/EmployerProfile";
+import { createJobAlertsForMatchingCandidates } from "../controllers/jobAlertsController";
 export interface SearchQueryParams {
   keyword?: string;
   location?: string;
@@ -121,5 +122,19 @@ JobSchema.statics.checkJobOwnership = async function (userId, jobId) {
     return false;
   }
 };
+
+JobSchema.post("findOneAndUpdate", async function (job) {
+  if (job.jobApprovalStatus === "approved") {
+    try {
+      console.log(`Matching candidates for job role: ${job.jobRole}`);
+
+      const matchingCandidates = await createJobAlertsForMatchingCandidates(
+        job
+      );
+    } catch (error) {
+      console.error("Error in job matching process:", error);
+    }
+  }
+});
 
 export default mongoose.model<IJob, IJobsModel>("Job", JobSchema);
