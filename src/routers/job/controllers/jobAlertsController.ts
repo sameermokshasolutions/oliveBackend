@@ -27,17 +27,28 @@ export const createJobAlertsForMatchingCandidates = async (job: any) => {
     const jobAlerts = [];
     for (const candidate of matchingCandidates) {
       try {
-        const jobAlert = new JobAlert({
+        const existingAlert = await JobAlert.findOne({
           jobId: job._id,
-          CandidateId: candidate._id,
           email: candidate.userDetails.email,
-          sent: false,
         });
 
-        await jobAlert.save();
-        jobAlerts.push(candidate);
+        if (!existingAlert) {
+          const jobAlert = new JobAlert({
+            jobId: job._id,
+            CandidateId: candidate._id,
+            email: candidate.userDetails.email,
+            sent: false,
+          });
 
-        console.log(`Job alert created for candidate: ${candidate._id}`);
+          await jobAlert.save();
+          jobAlerts.push(candidate);
+
+          console.log(`Job alert created for candidate: ${candidate._id}`);
+        } else {
+          console.log(
+            `Job alert already exists for candidate: ${candidate._id} and job: ${job._id}`
+          );
+        }
       } catch (alertError) {
         console.error(
           `Error creating job alert for candidate ${candidate._id}:`,
