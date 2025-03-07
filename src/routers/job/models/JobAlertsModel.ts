@@ -18,7 +18,6 @@ const JobAlertSchema = new mongoose.Schema(
 );
 
 JobAlertSchema.post("save", async function (doc, next) {
-  console.log("inside post save job alert!");
   if (!doc.sent) {
     try {
       // Populate the job and candidate data to include in the email

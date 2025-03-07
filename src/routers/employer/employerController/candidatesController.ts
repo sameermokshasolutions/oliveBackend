@@ -4,6 +4,7 @@ import Job from "../../job/models/Job";
 import createHttpError from "http-errors";
 import AppliedJobsByCandidateModel from "../../job/models/AppliedJobsByCandidateModel";
 import mongoose from "mongoose";
+import SaveCandidates from "../models/SaveCandidates";
 
 export const getAppliedCandidatesByJobId: RequestHandler = async (
   req: AuthenticatedRequest,
@@ -295,5 +296,80 @@ export const searchCandidates = async (
   } catch (error) {
     console.error("Candidate search error:", error);
     next(createHttpError(500, "Error searching candidates"));
+  }
+};
+
+export const getCandidatesById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { candidateId } = req.params;
+    const pipeline: mongoose.PipelineStage[] = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(candidateId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      {
+        $unwind: "$userDetails",
+      },
+      {
+        $project: {
+          userId: 1,
+          address: 1,
+          availability: 1,
+          awardsAndHonors: 1,
+          biography: 1,
+          educationList: 1,
+          expectedSalary: 1,
+          experienceList: 1,
+          gender: 1,
+          jobPreferences: 1,
+          jobRolePreferences: 1,
+          languages: 1,
+          maritalStatus: 1,
+          notificationPreference: 1,
+          preferredJobLocation: 1,
+          relocationPreference: 1,
+          skills: 1,
+          socialList: 1,
+          experienceYears: 1,
+          resumeUrl: 1,
+          dateOfBirth: 1,
+          firstName: "$userDetails.firstName",
+          lastName: "$userDetails.lastName",
+          email: "$userDetails.email",
+        },
+      },
+    ];
+
+    const candidateData = await CandidateModel.aggregate(pipeline);
+    const isSaved = await SaveCandidates.checkCandidateSaved(
+      new mongoose.Types.ObjectId(userId),
+      new mongoose.Types.ObjectId(candidateId)
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "candidates",
+      data: {
+        ...candidateData[0],
+        isSaved,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return next(createHttpError(500, "Internal server error"));
   }
 };

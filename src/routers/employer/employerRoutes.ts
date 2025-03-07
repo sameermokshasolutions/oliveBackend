@@ -14,6 +14,7 @@ import {
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
 import {
   getAppliedCandidatesByJobId,
+  getCandidatesById,
   searchCandidates,
   updateApplicationStatus,
 } from "./employerController/candidatesController";
@@ -88,6 +89,12 @@ employerRouter.post(
   "/searchCandidate",
   employerAuthMiddleware,
   searchCandidates
+);
+
+employerRouter.get(
+  "/candidate/:candidateId",
+  employerAuthMiddleware,
+  getCandidatesById
 );
 
 export default employerRouter;
