@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import { RequestHandler, Response } from "express";
 import { getUserId } from "../../../utils/getUserIdFromJwt";
 import createHttpError from "http-errors";
 import fs from "fs";
@@ -307,8 +307,8 @@ export const getUserProfile = async (
 
 // Route handler to update or create candidate detailed information
 export const updateUserProfile: RequestHandler = async (
-  req: any,
-  res,
+  req: AuthenticatedRequest,
+  res: Response,
   next: NextFunction
 ) => {
   try {
