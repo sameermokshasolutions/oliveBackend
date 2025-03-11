@@ -307,6 +307,13 @@ export const getCandidatesById = async (
   try {
     const userId = req.user?.id;
     const { candidateId } = req.params;
+
+    const candidate = CandidateModel.findById(candidateId);
+
+    if (!candidate) {
+      return next(createHttpError(404, "Candidate not found"));
+    }
+
     const pipeline: mongoose.PipelineStage[] = [
       {
         $match: {
@@ -346,6 +353,7 @@ export const getCandidatesById = async (
           socialList: 1,
           experienceYears: 1,
           resumeUrl: 1,
+          profileUrl: 1,
           dateOfBirth: 1,
           firstName: "$userDetails.firstName",
           lastName: "$userDetails.lastName",

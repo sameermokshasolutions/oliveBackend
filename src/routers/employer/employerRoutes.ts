@@ -26,16 +26,20 @@ import {
 } from "./employerController/InterviewScheduleController";
 import { validateInterview } from "./validators/validateInterview";
 import { validateRequest } from "../../middlewares/validateRequest";
-import { getSavedCandidates, saveCandidates } from "./employerController/saveCandidate";
+import {
+  getSavedCandidates,
+  saveCandidates,
+} from "./employerController/saveCandidate";
 
 const employerRouter = express.Router();
 
-// Route for user registration with validation middleware
+// ROUTE FOR USER REGISTRATION WITH VALIDATION MIDDLEWARE
 employerRouter.post(
   "/updateProfile",
   authenticateToken,
   updateProfileController
 );
+
 employerRouter.get(
   "/getEmployerProfile",
   authenticateToken,
@@ -55,6 +59,7 @@ employerRouter.get(
   employerAuthMiddleware,
   getAppliedCandidatesByJobId
 );
+
 employerRouter.post(
   "/updateApplicationStatus",
   employerAuthMiddleware,
@@ -69,16 +74,19 @@ employerRouter.post(
   validateRequest,
   scheduleInterview
 );
+
 employerRouter.get(
   "/shortListedCandidates",
   employerAuthMiddleware,
   getShortListedCandidates
 );
+
 employerRouter.get(
   "/scheduledInterviews",
   employerAuthMiddleware,
   getScheduledInterview
 );
+
 employerRouter.post(
   "/updateScheduledInterview",
   employerAuthMiddleware,
@@ -99,6 +107,10 @@ employerRouter.get(
 );
 
 employerRouter.post("/save-candidate/:id", authenticateToken, saveCandidates);
-employerRouter.get("/saved-candidates", authenticateToken, getSavedCandidates);
+employerRouter.get(
+  "/saved-candidates",
+  employerAuthMiddleware,
+  getSavedCandidates
+);
 
 export default employerRouter;
