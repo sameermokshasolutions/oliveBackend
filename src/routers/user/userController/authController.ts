@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 import User from "../userModals/usermodal";
 import { config } from "../../../config/config";
-import crypto from "crypto";
+import crypto, { randomInt } from "crypto";
 import { emailService } from "../../../services/emailService";
 
 import usermodal from "../userModals/usermodal";
@@ -38,9 +38,8 @@ export const loginUser = async (
       } catch (emailError) {
         console.error("Error sending verification email:", emailError);
         await User.findByIdAndDelete(existingUser._id);
-        throw createHttpError(500, "Failed to send verification email");
+        return next(createHttpError(500, "Failed to send verification email"));
       }
-
       return next(
         createHttpError(403, "Please verify your account. Check your email!")
       );
@@ -53,9 +52,13 @@ export const loginUser = async (
     }
 
     // Generate a JWT token for the authenticated user with a 10-hour expiration
-    const token = jwt.sign({ id: existingUser._id, userRole:existingUser.role }, config.jwtSecret, {
-      expiresIn: "10h",
-    });
+    const token = jwt.sign(
+      { id: existingUser._id, userRole: existingUser.role },
+      config.jwtSecret,
+      {
+        expiresIn: "10h",
+      }
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -80,7 +83,7 @@ export const loginUser = async (
       message: "Login successful",
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Internal server error"));
   }
 };
 
@@ -119,7 +122,7 @@ export const logoutUser = (
 
     // Pass error to next middleware if response hasn't been sent
     if (!res.headersSent) {
-      return next(error);
+      return next(createHttpError(500, "Internal server error"));
     }
   }
 };
@@ -138,19 +141,16 @@ export const forgetPassword = async (
     const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
-      throw createHttpError(404, "User not found with this email address");
+      next(createHttpError(404, "User not found with this email address"));
     }
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otp = randomInt(100000, 999999).toString();
 
     // Update the user with the new OTP
     await User.findOneAndUpdate(
       { email },
-      { $set: { otp, otpExpires: Date.now() + 10 * 60 * 1000 } } // OTP expires in 10 minutes
+      { $set: { otp, otpExpires: Date.now() + 10 * 60 * 1000 } }
     );
-
-    // Send verification email
-    console.log(email);
 
     try {
       await emailService.sendEmail(
@@ -161,7 +161,7 @@ export const forgetPassword = async (
       console.log("Password reset email sent successfully");
     } catch (emailError) {
       console.error("Error sending password reset email:", emailError);
-      throw createHttpError(500, "Failed to send password reset email");
+      next(createHttpError(500, "Failed to send password reset email"));
     }
 
     // Send a success response to the client
@@ -170,7 +170,7 @@ export const forgetPassword = async (
       message: "OTP sent successfully. Please check your email.",
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Internal server error"));
   }
 };
 
@@ -183,52 +183,49 @@ export const verifyOtp = async (
     const { email, otp } = req.body;
     console.log(email, otp);
 
-    // Validate input
     if (!email || !otp) {
-      throw createHttpError(400, "Email and OTP are required");
+      return next(createHttpError(400, "Email and OTP are required"));
     }
 
-    // Find the user by email
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw createHttpError(404, "User not found");
+      return next(createHttpError(404, "User not found"));
     }
 
-    // Check if OTP exists and is not expired
     if (!user.otp) {
-      throw createHttpError(
-        400,
-        "OTP not found or expired. Please request a new one."
+      return next(
+        createHttpError(
+          400,
+          "OTP not found or expired. Please request a new one."
+        )
       );
     }
 
-    // Check if OTP is expired
     if (!user.otpExpires || user.otpExpires < new Date()) {
-      throw createHttpError(400, "OTP has expired. Please request a new one.");
+      return next(
+        createHttpError(400, "OTP has expired. Please request a new one.")
+      );
     }
 
-    // Verify OTP
     if (user.otp !== otp) {
-      throw createHttpError(400, "Invalid OTP");
+      return next(createHttpError(400, "Invalid OTP"));
     }
 
-    // Clear the OTP and expiration time
-    // user.otp = undefined;
-    // user.otpExpires = undefined;
+    user.otp = undefined;
+    user.otpExpires = undefined;
 
     // // Set a flag to indicate that the user can reset their password
     // // user.canResetPassword = true;
 
-    // await user.save();
+    await user.save();
 
-    // Send success response
     res.status(200).json({
       success: true,
       message: "OTP verified successfully. You can now reset your password.",
     });
   } catch (error) {
-    next(error);
+    next(createHttpError(500, "Internal server error"));
   }
 };
 

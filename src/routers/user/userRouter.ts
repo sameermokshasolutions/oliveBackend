@@ -41,9 +41,9 @@ userRouter.post(
 
 // Route for user login with validation middleware
 // Validates login credentials before passing them to the login controller
+userRouter.post("/forgot-password", validateRequest, forgetPassword);
 userRouter.post("/verify-otp", validateRequest, verifyOtp);
 userRouter.post("/reset-password", validateRequest, resetPassword);
-userRouter.post("/forgot-password", validateRequest, forgetPassword);
 userRouter.post("/login", ...loginValidation, validateRequest, loginUser);
 userRouter.post("/logout", validateRequest, logoutUser);
 

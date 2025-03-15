@@ -35,7 +35,7 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// API Routes
+// API ROUTES
 app.use("/api/users", userRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api", emailRouter);
@@ -83,7 +83,7 @@ const getChangedFields = (oldObj: any, newObj: any) => {
   compareValues(oldObj, newObj, "");
   return changes;
 };
-// Error handler must be last
+
 app.use(globalErrorHandler);
 
 export default app;
