@@ -6,8 +6,6 @@ import User from "../userModals/usermodal";
 import { config } from "../../../config/config";
 import crypto, { randomInt } from "crypto";
 import { emailService } from "../../../services/emailService";
-
-import usermodal from "../userModals/usermodal";
 import { forgetPaswordTemplate } from "../../../views/otpTemplate";
 import { verificationEmailTemplate } from "../../../views/emailTemplates";
 
@@ -222,7 +220,7 @@ export const verifyOtp = async (
 
     res.status(200).json({
       success: true,
-      message: "OTP verified successfully. You can now reset your password.",
+      message: "OTP verified successfully",
     });
   } catch (error) {
     next(createHttpError(500, "Internal server error"));

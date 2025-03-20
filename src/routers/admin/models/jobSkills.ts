@@ -1,29 +1,23 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema, ObjectId } from "mongoose";
 
-// const jobSkillsSchema = new mongoose.Schema(
-//   {
-//     name: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//       trim: true,
-//     },
-//   },
-//   { timestamps: true }
-// );
+interface IJobSkill extends Document {
+  name: string;
+  role: ObjectId[];
+}
 
-const jobSkillsSchema = new mongoose.Schema({
+const jobSkillsSchema = new Schema<IJobSkill>({
   name: {
     type: String,
     required: true,
   },
-  role: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "JobRole",
-    required: true,
-  },
+  role: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "JobRole",
+      required: true,
+    },
+  ],
 });
-jobSkillsSchema.index({ name: 1, role: 1 }, { unique: true });
 
-const JobSkills = mongoose.model("JobSkills", jobSkillsSchema);
+const JobSkills = mongoose.model<IJobSkill>("JobSkills", jobSkillsSchema);
 export default JobSkills;
