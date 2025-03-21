@@ -1,29 +1,23 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema, ObjectId } from "mongoose";
 
-// const jobTagSchema = new mongoose.Schema(
-//   {
-//     name: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//       trim: true,
-//     },
-//   },
-//   { timestamps: true }
-// );
+interface IJobTags extends Document {
+  name: string;
+  role: ObjectId[];
+}
 
-const jobTagSchema = new mongoose.Schema({
+const jobTagSchema = new Schema<IJobTags>({
   name: {
     type: String,
     required: true,
   },
-  role: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "JobRole",
-    required: true,
-  },
+  role: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "JobRole",
+      required: true,
+    },
+  ],
 });
-jobTagSchema.index({ name: 1, role: 1 }, { unique: true });
 
-const JobTag = mongoose.model("JobTag", jobTagSchema);
+const JobTag = mongoose.model<IJobTags>("JobTag", jobTagSchema);
 export default JobTag;
