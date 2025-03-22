@@ -13,6 +13,15 @@ import {
   getAppliedJobs,
 } from "./controllers/appliedJobController";
 import { getSavedJobs, saveJobs } from "./controllers/savedJobController";
+import {
+  CreateJobTemplate,
+  DeletJobTemplate,
+  ReadJobTemplateById,
+  ReadJobTemplates,
+  ReadJobTemplatesByCompanyType,
+  UpdateJobTemplate,
+} from "./controllers/jobTemplate.controller";
+import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
 
 const jobRouter = express.Router();
 
@@ -31,5 +40,17 @@ jobRouter.get("/getAppliedJobs", authenticateToken, getAppliedJobs);
 // save jobs
 jobRouter.put("/saveJobs/:id", authenticateToken, saveJobs);
 jobRouter.get("/saveJobs", authenticateToken, getSavedJobs);
+
+// JOB TEMPLATES APIS
+jobRouter.post("/job-template", CreateJobTemplate);
+jobRouter.get("/job-template", ReadJobTemplates);
+jobRouter.get("/job-template/:templateId", ReadJobTemplateById);
+jobRouter.put("/job-template/:templateId", UpdateJobTemplate);
+jobRouter.delete("/job-template/:templateId", DeletJobTemplate);
+jobRouter.get(
+  "/job-template-by-company",
+  employerAuthMiddleware,
+  ReadJobTemplatesByCompanyType
+);
 
 export default jobRouter;

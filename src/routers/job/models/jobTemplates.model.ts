@@ -11,7 +11,7 @@ export interface IJobTemplates extends Document {
   skills: string[];
 }
 
-const JobSchema: Schema = new Schema<IJobTemplates>(
+const JobTemplatechema: Schema = new Schema<IJobTemplates>(
   {
     companyType: {
       type: mongoose.Schema.Types.ObjectId,
@@ -29,7 +29,10 @@ const JobSchema: Schema = new Schema<IJobTemplates>(
   { timestamps: true }
 );
 
-export default mongoose.model<IJobTemplates>("Job", JobSchema);
-
+const JobTemplate = mongoose.model<IJobTemplates>(
+  "JobTemplate",
+  JobTemplatechema
+);
+export default JobTemplate;
 //   employmentType: "Permanent" | "Temporary" | "Self-Employed";
 //   workMode: "on-site" | "remote" | "hybrid" | "flexible";
