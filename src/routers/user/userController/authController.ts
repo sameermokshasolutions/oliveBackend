@@ -8,6 +8,7 @@ import crypto, { randomInt } from "crypto";
 import { emailService } from "../../../services/emailService";
 import { forgetPaswordTemplate } from "../../../views/otpTemplate";
 import { verificationEmailTemplate } from "../../../views/emailTemplates";
+import { logActivity } from "../../admin/middleware/userActivity.middleware";
 
 export const loginUser = async (
   req: Request,
@@ -72,6 +73,13 @@ export const loginUser = async (
       maxAge: 10 * 60 * 60 * 1000,
       domain: config.env === "production" ? ".hijr.in" : "localhost",
     });
+
+    await logActivity(
+      String(existingUser._id),
+      existingUser.role,
+      "Login",
+      "Login successful"
+    );
 
     res.status(200).json({
       success: true,
@@ -272,6 +280,13 @@ export const resetPassword = async (
     user.otpExpires = undefined;
 
     await user.save();
+
+    await logActivity(
+      String(user._id),
+      user.role,
+      "Password reset",
+      "Password reset successfully"
+    );
 
     // Send success response
     res.status(200).json({

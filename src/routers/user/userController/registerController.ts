@@ -7,6 +7,7 @@ import User from "../userModals/usermodal"; // Import the User model
 import { emailService } from "../../../services/emailService"; // Service for sending emails
 import { verificationEmailTemplate } from "../../../views/emailTemplates"; // Email template for verification
 import { config } from "../../../config/config"; // Configuration file
+import { logActivity } from "../../admin/middleware/userActivity.middleware";
 
 // Ensure that the JWT_SECRET environment variable is set
 if (!config.jwtSecret) {
@@ -31,16 +32,14 @@ export const registerUser = async (
       notificationPreference,
     } = req.body;
 
-    // Check if the email is already registered in the database
     const existingUser = await User.findOne({ email });
 
-    // Check if the phone number is already registered in the database
     const existingPhone = await User.findOne({ phoneNumber });
     if (existingUser) {
-      return next(createHttpError(409, "Email already registered")); // Conflict error for duplicate email
+      return next(createHttpError(409, "Email already registered"));
     }
     if (existingPhone) {
-      return next(createHttpError(409, "Phone Number already in Use")); // Conflict error for duplicate phone number
+      return next(createHttpError(409, "Phone Number already in Use"));
     }
 
     // Generate a unique user ID by finding the last user and incrementing their ID
@@ -92,6 +91,13 @@ export const registerUser = async (
     const userResponse = user.toObject();
     userResponse.password = "";
 
+    await logActivity(
+      String(user._id),
+      user.role,
+      "User registration",
+      "User registered successfully"
+    );
+
     // Send a success response to the client
     res.status(201).json({
       success: true,
@@ -129,6 +135,13 @@ export const verifyEmail = async (
     user.verificationToken = undefined;
     user.status = "Active";
     await user.save();
+
+    await logActivity(
+      String(user._id),
+      user.role,
+      "Email verification",
+      `Email verified successfully`
+    );
 
     // Send a success response to the client
     res.status(200).json({
