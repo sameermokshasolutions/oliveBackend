@@ -11,7 +11,7 @@ export interface IJobTemplates extends Document {
   skills: string[];
 }
 
-const JobTemplatechema: Schema = new Schema<IJobTemplates>(
+const JobTemplatechema = new Schema<IJobTemplates>(
   {
     companyType: {
       type: mongoose.Schema.Types.ObjectId,

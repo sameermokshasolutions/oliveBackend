@@ -17,6 +17,7 @@ import {
   deleteJobCategory,
   getAllJobCategories,
   getJobCategoriesByCompanyType,
+  getJobCategoriesByCompanyTypeId,
   updateJobCategory,
 } from "./controllers/jobCategoryController";
 import {
@@ -88,6 +89,10 @@ adminRouter.get(
   "/jobCategoriesByCompanyType",
   employerAuthMiddleware,
   getJobCategoriesByCompanyType
+);
+adminRouter.get(
+  "/job-categories-company/:companyTypeId",
+  getJobCategoriesByCompanyTypeId
 );
 adminRouter.post("/job-categories", createJobCategory);
 adminRouter.put("/job-categories/:id", updateJobCategory);
