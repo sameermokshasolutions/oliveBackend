@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import createHttpError from "http-errors";
 import SaveCandidates from "../models/SaveCandidates";
 import CandidateModel from "../../user/userModals/Candidate";
+import mongoose from "mongoose";
 
 export const saveCandidates = async (
   req: AuthenticatedRequest,
@@ -63,10 +64,15 @@ export const getSavedCandidates = async (
   next: NextFunction
 ) => {
   const userId = req.user?.id;
+  const { page = "1", limit = "10" } = req.query;
 
   if (!userId) {
     return next(createHttpError(400, "User not found"));
   }
+
+  const pageNumber = Number(page) > 0 ? Number(page) : 1;
+  const limitNumber = Number(limit) > 0 ? Number(limit) : 10;
+  const skip = (pageNumber - 1) * limitNumber;
 
   try {
     const savedCandidatesByUser = await SaveCandidates.findOne({ userId });
@@ -82,7 +88,11 @@ export const getSavedCandidates = async (
 
     const savedCandidatesList = savedCandidatesByUser?.savedCandidates;
 
-    const candidates = await CandidateModel.aggregate([
+    const totalDocuments = await CandidateModel.countDocuments({
+      _id: { $in: savedCandidatesList },
+    });
+
+    const pipeline: mongoose.PipelineStage[] = [
       {
         $match: {
           _id: { $in: savedCandidatesList },
@@ -99,6 +109,8 @@ export const getSavedCandidates = async (
       {
         $unwind: "$userInfo",
       },
+      { $skip: skip },
+      { $limit: limitNumber },
       {
         $project: {
           userId: 1,
@@ -106,17 +118,27 @@ export const getSavedCandidates = async (
           educationList: 1,
           profileUrl: 1,
           resumeUrl: 1,
+          availability: 1,
           firstName: "$userInfo.firstName",
           lastName: "$userInfo.lastName",
         },
       },
-    ]);
+    ];
+
+    const candidates = await CandidateModel.aggregate(pipeline);
 
     res.status(200).json({
       success: true,
       message: "Data fetched successfully",
-      data: candidates,
-      totalSaved: savedCandidatesByUser?.totalSaved,
+      data: {
+        candidates: candidates,
+        pagination: {
+          total: totalDocuments,
+          page: pageNumber,
+          limit: limitNumber,
+          pages: Math.ceil(totalDocuments / limitNumber),
+        },
+      },
     });
   } catch (error) {
     return next(createHttpError(500, `Internal server error`));
