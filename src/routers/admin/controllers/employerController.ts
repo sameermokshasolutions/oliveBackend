@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import EmployerProfile from "../../employer/models/EmployerProfile";
+import mongoose from "mongoose";
 
 export const getAllEmployers = async (
   req: Request,
@@ -25,7 +26,16 @@ export const getAllEmployers = async (
       };
     }
     if (company_type) {
-      employerprofileMatchConditions.company_type = company_type;
+      try {
+        const companyTypeObjectId = new mongoose.Types.ObjectId(company_type);
+        employerprofileMatchConditions.companyType = companyTypeObjectId;
+      } catch (conversionError) {
+        console.error(
+          "Error converting company_type to ObjectId:",
+          conversionError
+        );
+        employerprofileMatchConditions.companyType = undefined;
+      }
     }
     if (industryType) {
       employerprofileMatchConditions.industryType = industryType;

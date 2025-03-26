@@ -5,7 +5,7 @@ export interface IEmployerProfile extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   companyName: string;
-  companySize: string;
+  companySize: number;
   industryType: IndustryType;
   headquartersAddress: string;
   contactNumber: string;
@@ -23,16 +23,14 @@ export interface IEmployerProfile extends Document {
   branding_opted: boolean;
   custom_job_post_templates_enabled: boolean;
   bannerImage: string;
-  yearOfEstablishment: string;
+  yearOfEstablishment: number;
   companyVision: string;
   publicEmail: string;
-
-  //   virtual fields
   isProfileComplete?: boolean;
   profileCompletionPercentage?: number;
 }
 
-const EmployerProfileSchema: Schema = new Schema(
+const EmployerProfileSchema: Schema = new Schema<IEmployerProfile>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     companyName: { type: String, required: true },
@@ -77,7 +75,7 @@ EmployerProfileSchema.virtual("isProfileComplete").get(function () {
     "companyName",
     "companySize",
     "industryType",
-    "company_type",
+    "companyType",
     "headquartersAddress",
     "contactNumber",
     "aboutUs",
