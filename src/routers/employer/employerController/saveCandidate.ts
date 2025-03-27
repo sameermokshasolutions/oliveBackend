@@ -81,8 +81,15 @@ export const getSavedCandidates = async (
       res.status(200).json({
         success: true,
         message: "No saved candidates",
-        data: [],
-        totalSaved: 0,
+        data: {
+          candidates: [],
+          pagination: {
+            total: 0,
+            page: pageNumber,
+            limit: limitNumber,
+            pages: 1,
+          },
+        },
       });
     }
 
