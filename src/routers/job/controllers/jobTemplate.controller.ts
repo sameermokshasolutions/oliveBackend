@@ -160,7 +160,7 @@ export const ReadJobTemplatesByCompanyType = async (
 
     const jobTemplates = await JobTemplate.find({
       companyType: employerProfile.companyType,
-    });
+    }).select("jobTitle jobRole");
 
     res.status(200).json({
       success: true,
