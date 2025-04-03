@@ -354,14 +354,17 @@ export const updateUserProfile: RequestHandler = async (
       await logProfileActivity(
         userId,
         updatedCandidate,
-        updatedCandidate.isNew ? "created" : "updated",
+        updatedCandidate.isNew ? "profile created" : "profile updated",
         candidateUpdates,
         "candidateInfo"
       );
     }
 
     res.status(200).json({
-      message: "Profile updated successfully",
+      success: true,
+      message: updatedCandidate.isNew
+        ? "profile created successfully"
+        : "profile updated successfully",
       data: {
         user: updatedUser,
         candidateInfo: updatedCandidate,

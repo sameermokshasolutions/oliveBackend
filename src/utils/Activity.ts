@@ -1,58 +1,64 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-// Define the interface for the Activity document
 export interface IActivity extends Document {
-    userId: string;
-    remarks: string;
-    timestamp: Date;
-    mutateTable: string;
-    content: string;
-    status: boolean;
-    contentUrl?: string;
-    fileSize?: string;
-    fileFormat?: string;
+  userId: string;
+  remarks: string;
+  timestamp: Date;
+  mutateTable: string;
+  content: string;
+  status: boolean;
+  contentUrl?: string;
+  fileSize?: string;
+  fileFormat?: string;
 }
 
-// Define the Mongoose schema for the Activity model
-const ActivitySchema: Schema = new Schema({
+const ActivitySchema: Schema = new Schema(
+  {
     userId: {
-        type: String,
-        required: true,
-        index: true // Add an index for faster queries
+      type: String,
+      required: true,
+      index: true, 
     },
     remarks: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     timestamp: {
-        type: Date,
-        default: Date.now,
-        index: true // Add an index for faster queries and sorting
+      type: Date,
+      default: Date.now,
+      index: true,
     },
     mutateTable: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
-    content: {
+    content: [
+      {
         type: String,
-        required: true
-    },
+        required: true,
+      },
+    ],
     status: {
-        type: Boolean,
-        default: true
+      type: Boolean,
+      default: true,
     },
     contentUrl: {
-        type: String
+      type: String,
     },
     fileSize: {
-        type: String
+      type: String,
     },
     fileFormat: {
-        type: String
-    }
-}, {
-    timestamps: true // Adds createdAt and updatedAt fields
-});
+      type: String,
+    },
+  },
+  {
+    timestamps: true, 
+  }
+);
 
-// Create and export the Mongoose model
-export const ActivityModel = mongoose.model<IActivity>('Activity', ActivitySchema);
+
+export const ActivityModel = mongoose.model<IActivity>(
+  "Activity",
+  ActivitySchema
+);

@@ -63,7 +63,7 @@ export const createJobSkills = async (
       data: newskills,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     next(createHttpError(500, "Error creating job skills"));
   }
 };
@@ -86,6 +86,7 @@ export const updateJobSkills = async (
       data: updatedskills,
     });
   } catch (error) {
+    console.log(error);
     next(createHttpError(500, "Error updating job skills"));
   }
 };
