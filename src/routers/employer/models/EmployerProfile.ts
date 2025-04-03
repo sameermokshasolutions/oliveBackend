@@ -38,7 +38,6 @@ const EmployerProfileSchema: Schema = new Schema<IEmployerProfile>(
     industryType: {
       type: String,
       enum: Object.values(IndustryType),
-      required: true,
     },
     headquartersAddress: { type: String, required: true },
     contactNumber: { type: String, required: true },
