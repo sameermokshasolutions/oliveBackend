@@ -9,6 +9,8 @@ const jobSkillsSchema = new Schema<IJobSkill>({
   name: {
     type: String,
     required: true,
+    unique: true,
+    trim: true,
   },
   role: [
     {
