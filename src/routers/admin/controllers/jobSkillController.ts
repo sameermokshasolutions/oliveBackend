@@ -31,7 +31,7 @@ export const getAllJobSkills = async (
         select: "name",
       })
       .skip(skip)
-      .limit(limit);
+      .limit(limitNumber);
     const total = await JobSkills.countDocuments(matchConditions);
 
     res.status(200).json({

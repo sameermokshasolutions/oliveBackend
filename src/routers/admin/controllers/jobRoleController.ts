@@ -1,6 +1,8 @@
 import JobRole from "../models/JobRole";
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
+import { getPagination } from "../../../utils/getPagination";
 
 // Get all job roles (excluding soft-deleted ones)
 export const getAllJobRoles = async (
@@ -9,20 +11,67 @@ export const getAllJobRoles = async (
   next: NextFunction
 ) => {
   try {
-    const roles = await JobRole.find({ isDeleted: false }).populate({
-      path: "category",
-      select: "name",
-    });
+    const { keyword, category, page = "1", limit = "10" }: any = req.query;
+
+    const matchConditions: any = { isDeleted: false };
+
+    if (keyword) {
+      matchConditions.name = { $regex: keyword, $options: "i" };
+    }
+
+    if (category && mongoose.Types.ObjectId.isValid(category)) {
+      matchConditions.category = new mongoose.Types.ObjectId(category);
+    }
+
+    const { limitNumber, pageNumber, skip } = getPagination(page, limit);
+
+    const roles = await JobRole.find(matchConditions)
+      .populate({
+        path: "category",
+        select: "name",
+      })
+      .skip(skip)
+      .limit(limitNumber);
+
+    const total = await JobRole.countDocuments(matchConditions);
 
     res.status(200).json({
       success: true,
       message: "Job roles fetched successfully",
-      data: roles,
+      data: {
+        roles,
+        pagination: {
+          total: total,
+          page: pageNumber,
+          limit: limitNumber,
+          pages: Math.ceil(total / limitNumber),
+        },
+      },
     });
   } catch (error) {
     next(createHttpError(500, "Error while fetching Job Roles"));
   }
 };
+// export const getAllJobRoles = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const roles = await JobRole.find({ isDeleted: false }).populate({
+//       path: "category",
+//       select: "name",
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Job roles fetched successfully",
+//       data: roles,
+//     });
+//   } catch (error) {
+//     next(createHttpError(500, "Error while fetching Job Roles"));
+//   }
+// };
 
 // Get job roles by category (excluding soft-deleted ones)
 export const getJobRolesByCategory = async (

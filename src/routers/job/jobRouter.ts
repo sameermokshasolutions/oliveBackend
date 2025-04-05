@@ -22,6 +22,7 @@ import {
   UpdateJobTemplate,
 } from "./controllers/jobTemplate.controller";
 import { employerAuthMiddleware } from "../../middlewares/emplyerAuthMiddleware";
+import { getJobAlrtsOfCandidates } from "./controllers/jobAlertsController";
 
 const jobRouter = express.Router();
 
@@ -53,4 +54,5 @@ jobRouter.get(
   ReadJobTemplatesByCompanyType
 );
 
+jobRouter.get("/alerts", authenticateToken, getJobAlrtsOfCandidates);
 export default jobRouter;

@@ -1,5 +1,75 @@
+import { NextFunction, Response } from "express";
 import CandidateModel from "../../user/userModals/Candidate";
 import JobAlert from "../models/JobAlertsModel";
+import createHttpError from "http-errors";
+
+export const getJobAlrtsOfCandidates = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(createHttpError(403, "Unauthorized"));
+    }
+
+    const candidate = await CandidateModel.findOne({ userId }).select("_id");
+    if (!candidate) {
+      return next(createHttpError(404, "candidate not found"));
+    }
+
+    const alerts = await JobAlert.aggregate([
+      {
+        $match: {
+          CandidateId: candidate._id,
+          sent: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      {
+        $unwind: "$jobDetails",
+      },
+      {
+        $lookup: {
+          from: "employerprofiles",
+          localField: "jobDetails.company",
+          foreignField: "_id",
+          as: "companyDetails",
+        },
+      },
+      {
+        $unwind: "$companyDetails",
+      },
+      {
+        $project: {
+          jobId: 1,
+          jobRole: "$jobDetails.jobRole",
+          companyName: "$companyDetails.companyName",
+          postedAt: "$companyDetails.createdAt",
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "alerts fetched",
+      data: alerts,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const createJobAlertsForMatchingCandidates = async (job: any) => {
   try {

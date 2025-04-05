@@ -171,12 +171,21 @@ export const searchJob = async (req: any, res: any) => {
     //To get only admin approved jobs
     matchConditions.$and = [{ jobApprovalStatus: "approved" }];
     if (keyword) {
-      matchConditions.$or = [
+      const keywordSearchFields: any = [
         { jobTitle: { $regex: keyword, $options: "i" } },
         { jobDescription: { $regex: keyword, $options: "i" } },
-        { jobRole: { $regex: keyword, $options: "i" } },
       ];
+
+      // Only include jobRole in $or if jobRole filter is not already set
+      if (!jobRole) {
+        keywordSearchFields.push({
+          jobRole: { $regex: keyword, $options: "i" },
+        });
+      }
+
+      matchConditions.$or = keywordSearchFields;
     }
+
     if (location) {
       matchConditions.location = { $regex: location, $options: "i" };
     }
